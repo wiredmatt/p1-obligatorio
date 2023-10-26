@@ -48,8 +48,9 @@ function inicio() {
 
 function mostrarPantallaLogin() {
   document.querySelector("#divLogin").style.display = "block";
-  document.querySelector("#divContenidoAdministrador").style.display = "none";
   document.querySelector("#divRegistroUsuario").style.display = "none";
+  document.querySelector("#divContenidoAdministrador").style.display = "none";
+  // document.querySelector("#divContenidoUsuario").style.display = "none";
   document.querySelector("#cabezal").style.display = "none";
 }
 
@@ -58,11 +59,20 @@ function iniciarSesionUI() {
   let contrasena = obtenerValorDeUnElementoHTML("txtPassword");
 
   if (sistema.validarLogin(nomUsuario, contrasena)) {
-    //alert("Esta bien");
-    document.querySelector("#divLogin").style.display = "none";
+    let esAdmin = sistema.esAdmin(nomUsuario);
+
+    if (esAdmin) {
+      document.querySelector("#divContenidoAdministrador").style.display =
+        "block";
+      mostrarNavAdmin();
+    } else {
+      ocultarNavAdmin();
+      // document.querySelector("#divContenidoUsuario").style.display = "block";
+    }
+
     document.querySelector("#cabezal").style.display = "block";
-    document.querySelector("#divContenidoAdministrador").style.display =
-      "block";
+
+    document.querySelector("#divLogin").style.display = "none";
     limpiarUnCampoDeTexto("txtNomUsu");
     limpiarUnCampoDeTexto("txtPassword");
     limpiarUnElemento("pMensajesLogin");
@@ -177,15 +187,11 @@ function guardarPeliculaUI() {
 
   let mensaje = "";
 
-  //pNombre, pAnio, pGenero, pNumeroVotantes, pTotalPuntos
   if (!isNaN(anio) && !isNaN(nroVotantes) && !isNaN(totalPuntos)) {
-    // let pelicula = buscarPeliculaObjeto(nombre);
     if (sistema.buscarPeliculaObjeto(nombre) === null) {
       let anioNum = Number(anio);
       let nroVotantesNum = Number(nroVotantes);
       let totalPuntosNum = Number(totalPuntos);
-      // let pelicula = new Pelicula(nombre, anioNum, genero, nroVotantesNum, totalPuntosNum);
-      // sistema.arrayPeliculas.push(pelicula);
       let guaradaOk = sistema.guardarPelicula(
         nombre,
         anioNum,
@@ -198,8 +204,6 @@ function guardarPeliculaUI() {
       } else {
         mensaje = "Hubo un error";
       }
-
-      // listarTodas();
     } else {
       mensaje = `La pelicula ${nombre} ya existe`;
     }
@@ -210,7 +214,6 @@ function guardarPeliculaUI() {
 }
 
 function cargarGenerosCombo() {
-  //array generos (string)
   let generos = [
     "Animadas",
     "Comedia",
@@ -219,9 +222,6 @@ function cargarGenerosCombo() {
     "Uno nuevo",
     "Otro mas",
   ];
-  //document.querySelector("#slcGenero").innerHTML += `<option value="com">Comedia</option>`
-  //document.querySelector("#slcGenero").innerHTML += `<option value="dra">Drama</option>`
-  //document.querySelector("#slcGenero").innerHTML += `<option value="cf">Ciencia Ficc.</option>`
 
   for (let i = 0; i < generos.length; i++) {
     //let generoRecorrido = generos[i];
@@ -231,22 +231,6 @@ function cargarGenerosCombo() {
     ).innerHTML += `<option value="${generos[i]}">${generos[i]}</option>`;
   }
 }
-/*
-function buscarPelicula(pNombrePeli) {
-    let encontrada = false;
-    let i = 0;
-    while (i < arrayPeliculas.length && !encontrada) {
-        let peliRecorrida = arrayPeliculas[i];
-
-        if (pNombrePeli.toLowerCase() === peliRecorrida.nombre.toLowerCase()) {
-            encontrada = true;
-        }
-        i++;
-    }
-
-    return encontrada;
-}
-*/
 
 function listarTodas() {
   if (sistema.arrayPeliculas.length > 0) {
@@ -333,25 +317,25 @@ function verListadoDeUsuarios() {
 
   let tabla = `
                 <table>
-                <tr>
-                    <th>
-                        Nombre
-                    </th>
-                    
-                    <th>
-                        Apellido
-                    </th>
-                    
-                    <th>
-                        Nombre usuario
-                    </th>
-                    <th>
-                        Estado
-                    </th>
-                    <th>
-                        Activar
-                    </th>
-                </tr>    
+                  <tr>
+                      <th>
+                          Nombre
+                      </th>
+                      
+                      <th>
+                          Apellido
+                      </th>
+                      
+                      <th>
+                          Nombre usuario
+                      </th>
+                      <th>
+                          Estado
+                      </th>
+                      <th>
+                          Activar
+                      </th>
+                  </tr>    
                 `;
 
   for (let i = 0; i < sistema.arrayUsuariosComunes.length; i++) {

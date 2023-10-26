@@ -70,3 +70,19 @@ function obtenerValorDeUnElementoHTML(idDelElemento) {
 function imprimirEnHtml(pIdElemento, pLoQueImprimo) {
   document.querySelector(`#${pIdElemento}`).innerHTML = pLoQueImprimo;
 }
+
+function mostrarNavAdmin() {
+  let elementos = document.querySelectorAll(".nav-item-admin");
+
+  for (let i = 0; i < elementos.length; i++) {
+    elementos[i].style.display = "block";
+  }
+}
+
+function ocultarNavAdmin() {
+  let elementos = document.querySelectorAll(".nav-item-admin");
+
+  for (let i = 0; i < elementos.length; i++) {
+    elementos[i].style.display = "none";
+  }
+}
