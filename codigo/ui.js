@@ -105,18 +105,20 @@ function registroUsuarioUI() {
         "pInfoRegistroUsuario",
         "El nombre de usuario ya existe en el sistema"
       );
-      //return;
-    } else if (
-      sistema.registrarUsuario(
-        nombre,
-        apellido,
-        nombreUsuario,
-        contrasena,
-        tarjeta,
-        cvcTarjeta
-      )
-    ) {
-      //el usuario se guardo
+
+      return;
+    }
+
+    let registroOk = sistema.registrarUsuario(
+      nombre,
+      apellido,
+      nombreUsuario,
+      contrasena,
+      tarjeta,
+      cvcTarjeta
+    );
+
+    if (registroOk) {
       limpiarUnCampoDeTexto("txtNombreUsuarioRegistro");
       limpiarUnCampoDeTexto("txtApellidoRegistro");
       limpiarUnCampoDeTexto("txtNomUsuRegistro");
@@ -224,8 +226,6 @@ function cargarGenerosCombo() {
   ];
 
   for (let i = 0; i < generos.length; i++) {
-    //let generoRecorrido = generos[i];
-    // document.querySelector("#slcGenero").innerHTML += `<option value="${generoRecorrido}">${generoRecorrido}</option>`;
     document.querySelector(
       "#slcGenero"
     ).innerHTML += `<option value="${generos[i]}">${generos[i]}</option>`;
@@ -293,8 +293,6 @@ function buscarYMostrarPelicula() {
 
   let mensaje = "";
 
-  //voy a buscar un objeto pelicula, si lo encuentro, lo asigno en la variable
-  //si no lo encuentro, pelicula === null
   let pelicula = sistema.buscarPeliculaObjeto(nombreParaBuscar);
 
   if (pelicula !== null) {
@@ -341,14 +339,12 @@ function verListadoDeUsuarios() {
   for (let i = 0; i < sistema.arrayUsuariosComunes.length; i++) {
     let usuario = sistema.arrayUsuariosComunes[i];
 
-    // por defecto, los usuarios estan en estado pendiente, por lo que la accion debiera de ser "Activar"
-    let textoAccion = "Activar";
-    let clase = "activacionUsuarios";
+    let textoAccion = "Activar"; // a mostrar si el usuario esta pendiente
+    let clase = "activacionUsuarios"; // clase a dar si esta pendiente
 
     if (usuario.estado === "activo") {
-      // si el usuario fue activado, damos la opcion de bloquearlo
-      textoAccion = "Bloquear";
-      clase = "bloqueoUsuarios";
+      textoAccion = "Bloquear"; // a mostrar si el usuario ya fue activado
+      clase = "bloqueoUsuarios"; // a mostrar si el usuario ya fue activado
     }
 
     let botonAccion = `
@@ -398,7 +394,6 @@ function verListadoDeUsuarios() {
 
 function activarUsuarioUI() {
   let nombreUsuario = this.getAttribute("usuario-nombre");
-  //alert("el id del usuario es " + idDelUsuario);
 
   sistema.activarUsuario(nombreUsuario);
   verListadoDeUsuarios();
