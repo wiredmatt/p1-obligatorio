@@ -9,28 +9,46 @@ class Sistema {
 
   //validar login
   validarLogin(pNomUsuario, pContrasena) {
-    //let encontrado = false;
-    //let loginOk = false;
-
     let i = 0;
-    //while(i < this.arrayUsuariosAdmin.length && !encontrado) {
     while (i < this.arrayUsuariosAdmin.length) {
-      //el usuario que estoy recorreindo
       let unUsuario = this.arrayUsuariosAdmin[i];
       if (unUsuario.nombreUsuario === pNomUsuario) {
         if (unUsuario.contrasena === pContrasena) {
           return true;
-          //encontrado = true;
-          //loginOk = true;
         } else {
-          //encontrado = true;
           return false;
         }
       }
       i++;
     }
-    //return loginOk;
+
+    let j = 0;
+
+    while (j < this.arrayUsuariosComunes.length) {
+      let unUsuario = this.arrayUsuariosComunes[j];
+      if (unUsuario.nombreUsuario === pNomUsuario) {
+        if (unUsuario.contrasena === pContrasena) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+      j++;
+    }
+
     return false;
+  }
+
+  esAdmin(pNomUsuario) {
+    let esAdmin = false;
+
+    for (let i = 0; i < this.arrayUsuariosAdmin.length; i++) {
+      if (this.arrayUsuariosAdmin[i].nombreUsuario === pNomUsuario) {
+        return true;
+      }
+    }
+
+    return esAdmin;
   }
 
   //guardar las peliculas en el sistema
@@ -315,9 +333,18 @@ class Sistema {
     // precarga de usuarios administradores
     let admin1 = new UsuarioAdministrador("gaston", "1234");
     let admin2 = new UsuarioAdministrador("mateo", "1234");
-    this.arrayUsuariosAdmin.push(admin1, admin2);
+    let admin3 = new UsuarioAdministrador("matt1", "1234");
+    this.arrayUsuariosAdmin.push(admin1, admin2, admin3);
 
     // precarga de usuarios comunes
+    this.registrarUsuario(
+      "mateo",
+      "carriqui",
+      "matt",
+      "1234",
+      "4539-6253-0847-8250",
+      "323"
+    );
     this.registrarUsuario(
       "Gaston",
       "Sanguinetti",
