@@ -1,5 +1,6 @@
 /**
  * @typedef {("c7.small" | "c7.medium" | "c7.large" | "r7.small" | "r7.medium" | "r7.large" | "i7.medium" | "i7.large")} INSTANCIA_TIPO
+ * @typedef {("small" | "medium" | "large" } INSTANCIA_TAMANIO
  *
  * @typedef {("Optimizadas para computo" | "Optimizadas para memoria" | "Optimizadas para almacenamiento")} INSTANCIA_CATEGORIA
  */
@@ -79,7 +80,7 @@ class MaquinaVirtual {
    * @returns {INSTANCIA_CATEGORIA}
    */
   static tipoACategoria(tipo) {
-    switch (tipo) {
+    switch (tipo.charAt(0)) {
       case "c":
         return "Optimizadas para computo";
       case "r":
