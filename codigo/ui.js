@@ -57,8 +57,8 @@ function mostrarPantallaLogin() {
 
 /**
  * u,c = parametros opcionales para automatizar el login mientras testeamos.
- * @param {string} u
- * @param {string} c
+ * @param {?string} u
+ * @param {?string} c
  */
 function iniciarSesionUI(u, c) {
   let nomUsuario = obtenerValorDeUnElementoHTML("txtNomUsu") || u;
