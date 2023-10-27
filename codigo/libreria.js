@@ -72,3 +72,26 @@ function ocultarNavAdmin() {
     elementos[i].style.display = "none";
   }
 }
+
+function mostrarElemento(pIdElemento) {
+  document.querySelector(`#${pIdElemento}`).style.display = "block";
+}
+
+function ocultarElemento(pIdElemento) {
+  document.querySelector(`#${pIdElemento}`).style.display = "none";
+}
+
+/**
+ * @param {INSTANCIA_CATEGORIA} categoria
+ * @returns {("c" | "r" | "i")}
+ */
+function prefijoSegunCategoria(categoria) {
+  switch (categoria) {
+    case "Optimizadas para computo":
+      return "c";
+    case "Optimizadas para memoria":
+      return "r";
+    case "Optimizadas para almacenamiento":
+      return "i";
+  }
+}
