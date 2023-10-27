@@ -3,46 +3,34 @@ window.addEventListener("load", inicio);
 let sistema = new Sistema();
 
 function inicio() {
-  document
-    .querySelector("#btnGuardar")
-    .addEventListener("click", guardarPeliculaUI);
-  document
-    .querySelector("#btnListarTodas")
-    .addEventListener("click", listarTodas);
-  document
-    .querySelector("#btnListarProm4OMas")
-    .addEventListener("click", listarProm4OMas);
-  document
-    .querySelector("#btnBuscarPelicula")
-    .addEventListener("click", buscarYMostrarPelicula);
-
-  //cosas del login
+  // USUARIO UI - Usuarios se registran
   document
     .querySelector("#btnRegistrarse")
     .addEventListener("click", mostrarPantallaRegistro);
+  // USUARIO UI - Desde la pantalla de registro, se puede volver al login.
   document
-    .querySelector("#btnCrearUsuarioVolverLogin")
+    .querySelector("#btnVolverLogin")
     .addEventListener("click", mostrarPantallaLogin);
-  document
-    .querySelector("#btnIniciarSesion")
-    .addEventListener("click", iniciarSesionUI);
-
-  //registro usuario
+  // USUARIO UI - Desde la pantalla de login, se puede ir al registro.
   document
     .querySelector("#btnCrearUsuario")
     .addEventListener("click", registroUsuarioUI);
 
-  //cerrar sesion
+  // USUARIO Y ADMIN - Ambos se pueden logear desde la misma pantalla
+  document
+    .querySelector("#btnIniciarSesion")
+    .addEventListener("click", iniciarSesionUI);
+  // USUARIO Y ADMIN - Ambos pueden cerrar sesion
   document
     .querySelector("#aCerrarSesion")
     .addEventListener("click", cerrarSesionUI);
 
-  //moverse entre secciones admin
+  // ADMIN UI - Administrador puede ver y operar sobre los usuarios
   document
     .querySelector("#aListadoUsuarios")
     .addEventListener("click", verListadoDeUsuarios);
 
-  cargarGenerosCombo();
+  // La pantalla por defecto es el login - no landing page (bajo presupuesto).
   mostrarPantallaLogin();
 }
 
@@ -99,7 +87,6 @@ function registroUsuarioUI() {
   );
 
   if (erroresValidacion.length === 0) {
-    //aca llamamos al sistema
     if (sistema.buscarUsuarioObjeto(nombreUsuario) !== null) {
       imprimirEnHtml(
         "pInfoRegistroUsuario",
@@ -180,136 +167,6 @@ function mostrarPantallaRegistro() {
   document.querySelector("#divLogin").style.display = "none";
 }
 
-function guardarPeliculaUI() {
-  let nombre = obtenerValorDeUnElementoHTML("txtNombre");
-  let anio = obtenerValorDeUnElementoHTML("txtAnio");
-  let genero = obtenerValorDeUnElementoHTML("slcGenero");
-  let nroVotantes = obtenerValorDeUnElementoHTML("txtNroVotantes");
-  let totalPuntos = obtenerValorDeUnElementoHTML("txtTotalPuntos");
-
-  let mensaje = "";
-
-  if (!isNaN(anio) && !isNaN(nroVotantes) && !isNaN(totalPuntos)) {
-    if (sistema.buscarPeliculaObjeto(nombre) === null) {
-      let anioNum = Number(anio);
-      let nroVotantesNum = Number(nroVotantes);
-      let totalPuntosNum = Number(totalPuntos);
-      let guaradaOk = sistema.guardarPelicula(
-        nombre,
-        anioNum,
-        genero,
-        nroVotantesNum,
-        totalPuntosNum
-      );
-      if (guaradaOk) {
-        mensaje = "Agregada ok";
-      } else {
-        mensaje = "Hubo un error";
-      }
-    } else {
-      mensaje = `La pelicula ${nombre} ya existe`;
-    }
-  } else {
-    mensaje = "Año, nro votantes y total puntos deben ser valores numericos";
-  }
-  document.querySelector("#pResultado").innerHTML = mensaje;
-}
-
-function cargarGenerosCombo() {
-  let generos = [
-    "Animadas",
-    "Comedia",
-    "Drama",
-    "Ciencia Ficcion",
-    "Uno nuevo",
-    "Otro mas",
-  ];
-
-  for (let i = 0; i < generos.length; i++) {
-    document.querySelector(
-      "#slcGenero"
-    ).innerHTML += `<option value="${generos[i]}">${generos[i]}</option>`;
-  }
-}
-
-function listarTodas() {
-  if (sistema.arrayPeliculas.length > 0) {
-    document.querySelector("#divTabla").innerHTML = "";
-    let tabla = `<table border=1>
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Año</th>
-                            <th>Genero</th>
-                            <th>Nro Votantes</th>
-                            <th>Total Puntos</th>
-                        </tr>`;
-    for (let i = 0; i < sistema.arrayPeliculas.length; i++) {
-      let peliRecorrida = sistema.arrayPeliculas[i];
-      tabla += `<tr>
-                            <td>${peliRecorrida.nombre}</td> 
-                            <td>${peliRecorrida.anio}</td> 
-                            <td>${peliRecorrida.genero}</td> 
-                            <td>${peliRecorrida.numeroVotanes}</td> 
-                            <td>${peliRecorrida.totalPuntos}</td> 
-                        </tr>`;
-    }
-    tabla += `</table>`;
-    document.querySelector("#divTabla").innerHTML += tabla;
-  } else {
-    document.querySelector("#divTabla").innerHTML +=
-      "No hay peliculas cargadas";
-  }
-}
-
-function listarProm4OMas() {
-  document.querySelector("#divTabla").innerHTML = "";
-  let tabla = `<table border=1>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Año</th>
-                        <th>Genero</th>
-                        <th>Nro Votantes</th>
-                        <th>Total Puntos</th>
-                    </tr>`;
-  for (let i = 0; i < sistema.arrayPeliculas.length; i++) {
-    let peliRecorrida = sistema.arrayPeliculas[i];
-    let promedio = peliRecorrida.totalPuntos / peliRecorrida.numeroVotanes;
-    if (promedio >= 4) {
-      tabla += `<tr>
-                        <td>${peliRecorrida.nombre}</td> 
-                        <td>${peliRecorrida.anio}</td> 
-                        <td>${peliRecorrida.genero}</td> 
-                        <td>${peliRecorrida.numeroVotanes}</td> 
-                        <td>${peliRecorrida.totalPuntos}</td> 
-                    </tr>`;
-    }
-  }
-  tabla += `</table>`;
-  document.querySelector("#divTabla").innerHTML += tabla;
-}
-
-function buscarYMostrarPelicula() {
-  let nombreParaBuscar = obtenerValorDeUnElementoHTML("txtNombreBusqueda");
-
-  let mensaje = "";
-
-  let pelicula = sistema.buscarPeliculaObjeto(nombreParaBuscar);
-
-  if (pelicula !== null) {
-    mensaje = `
-            <strong>Nombre:</strong> ${pelicula.nombre} <br>
-            <strong>Año:</strong> ${pelicula.anio} <br>
-            <strong>Genero:</strong> ${pelicula.genero} <br>
-            <strong>Total puntos:</strong> ${pelicula.totalPuntos} <br>
-            <strong>Cantidad de votantes:</strong> ${pelicula.numeroVotanes}
-            `;
-  } else {
-    mensaje = "La pelicula no existe";
-  }
-
-  document.querySelector("#pBusquedaPelicula").innerHTML = mensaje;
-}
-
 function verListadoDeUsuarios() {
   document.querySelector("#divAdminCrearPelicula").style.display = "none";
 
@@ -331,7 +188,7 @@ function verListadoDeUsuarios() {
                           Estado
                       </th>
                       <th>
-                          Activar
+                          Operar
                       </th>
                   </tr>    
                 `;
@@ -357,7 +214,8 @@ function verListadoDeUsuarios() {
     </td>`;
 
     if (usuario.estado === "bloqueado") {
-      // una vez bloqueado el usuario, no hay ninguna accion para ofrecerle al administrador sobre este usuario.
+      // una vez bloqueado el usuario, no hay ninguna accion
+      // para ofrecerle al administrador sobre este usuario.
       botonAccion = "";
     }
 

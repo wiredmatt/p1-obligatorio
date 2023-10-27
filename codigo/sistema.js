@@ -1,9 +1,8 @@
 class Sistema {
   constructor() {
-    this.arrayPeliculas = [];
+    this.arrayInstancias = [];
     this.arrayUsuariosAdmin = [];
     this.arrayUsuariosComunes = [];
-    this.contadorIdPeliculas = 1;
     this.precargaDeDatos();
   }
 
@@ -51,79 +50,6 @@ class Sistema {
     return esAdmin;
   }
 
-  //guardar las peliculas en el sistema
-  guardarPelicula(pNombre, pAnioNum, pGenero, pNroVotantesNum, pTotalPuntos) {
-    let guardadaOk = false;
-    if (
-      this.validarPelicula(
-        pNombre,
-        pAnioNum,
-        pGenero,
-        pNroVotantesNum,
-        pTotalPuntos
-      )
-    ) {
-      let pelicula = new Pelicula(
-        this.contadorIdPeliculas,
-        pNombre,
-        pAnioNum,
-        pGenero,
-        pNroVotantesNum,
-        pTotalPuntos
-      );
-      this.arrayPeliculas.push(pelicula);
-      guardadaOk = true;
-      this.contadorIdPeliculas++;
-      console.log("Pelicula guardada con exito");
-    } else {
-      console.log("Hubo un error al guardar una pelicula");
-    }
-    return guardadaOk;
-  }
-
-  //validamos los datos de la pelicula que vamos a guardar antes de guardarla en el sistema
-  //ya validamos en le html, pero nos defendemos ante posibles errores no contemplados
-  validarPelicula(pNombre, pAnioNum, pGenero, pNroVotantesNum, pTotalPuntos) {
-    let esValida = false;
-    if (
-      pNombre !== "" &&
-      !isNaN(pAnioNum) &&
-      Number(pAnioNum) > 0 &&
-      pGenero !== "" &&
-      !isNaN(pNroVotantesNum) &&
-      Number(pNroVotantesNum) &&
-      !isNaN(pTotalPuntos) &&
-      Number(pTotalPuntos) &&
-      this.buscarPeliculaObjeto(pNombre) === null
-    ) {
-      esValida = true;
-    }
-    return esValida;
-  }
-
-  //las funciones o metodos de las clases, no llevan la palabra function
-  //function buscarPeliculaObjeto(pNombrePeli) {
-  buscarPeliculaObjeto(pNombrePeli) {
-    //let encontrada = false;
-    let peliculaEncontrada = null; //objetoPeli
-    let i = 0;
-
-    //largo: 10
-    // rec 4
-    while (i < this.arrayPeliculas.length && peliculaEncontrada === null) {
-      //obejeto pelicula
-      let peliRecorrida = this.arrayPeliculas[i];
-      //arrayPeliculas[i];
-      if (pNombrePeli.toLowerCase() === peliRecorrida.nombre.toLowerCase()) {
-        //encontrada = true;
-        peliculaEncontrada = peliRecorrida;
-      }
-      i++;
-    }
-
-    return peliculaEncontrada;
-  }
-
   registrarUsuario(pNombre, pApellido, pNomUsu, pContrasena, pNroTjt, pCvcTjt) {
     //el estado por defecto siempre va a ser pendiente, por lo tanto  lo seteo yo a mano
 
@@ -151,8 +77,7 @@ class Sistema {
         pNomUsu,
         pContrasena,
         pNroTjt,
-        pCvcTjt,
-        "pendiente"
+        pCvcTjt
       );
       this.arrayUsuariosComunes.push(usuario);
       console.log("Usuario registrado ok");
@@ -322,14 +247,6 @@ class Sistema {
   }
 
   precargaDeDatos() {
-    //this.arrayPeliculas.push(new Pelicula(1, "Madagascar 1", "2004", "Animada", 10, "10"));
-    //this.arrayPeliculas.push(new Pelicula(2, "Madagascar 2", "2008", "Animada", 10, 10));
-    //this.arrayPeliculas.push(new Pelicula(3, "Madagascar 3", "2011", "Animada", 10, 10));
-    this.guardarPelicula("Madagascar 1", 2004, "Animada", 10, 10);
-    this.guardarPelicula("Madagascar 2", 2008, "Animada", 10, 10);
-    this.guardarPelicula("Shrek", 0, "Animada", "10", 10);
-    this.guardarPelicula("Madagascar 3", 2011, "Animada", 10, 10);
-
     // precarga de usuarios administradores
     let admin1 = new UsuarioAdministrador("gaston", "1234");
     let admin2 = new UsuarioAdministrador("mateo", "1234");
