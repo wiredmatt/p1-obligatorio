@@ -1,8 +1,18 @@
 class Sistema {
   constructor() {
-    this.arrayInstancias = [];
+    /**
+     * @type {UsuarioAdministrador}
+     */
     this.arrayUsuariosAdmin = [];
+    /**
+     * @type {UsuarioComun}
+     */
     this.arrayUsuariosComunes = [];
+    /**
+     * @type {MaquinaVirtual}
+     */
+    this.arrayInstancias = [];
+
     this.precargaDeDatos();
   }
 
@@ -244,6 +254,52 @@ class Sistema {
     if (usuario !== null) {
       usuario.estado = "bloqueado";
     }
+  }
+
+  /**
+   *
+   * @param {INSTANCIA_CATEGORIA} categoria
+   * @returns {MaquinaVirtual[]}
+   */
+  buscarInstanciasPorCategoria(categoria) {
+    let arr = [];
+
+    for (let i = 0; i < this.arrayInstancias.length; i++) {
+      /**
+       * @type {MaquinaVirtual}
+       */
+      let instancia = this.arrayInstancias[i];
+
+      if (instancia.categoria === categoria) {
+        arr.push(instancia);
+      }
+    }
+
+    return arr;
+  }
+
+  /**
+   * Buscará por el criterio proporcionado, en `this.arrayInstancias`, o en `arrInstancias` de ser provisto.
+   *
+   * @param {INSTANCIA_TAMANIO} tamanio
+   * @param {?MaquinaVirtual[]} arrInstancias Si no es provisto, usará this.arrayInstancias.
+   *
+   * @returns {MaquinaVirtual[]}
+   */
+  buscarInstanciasPorTamanio(tamanio, arrInstancias = null) {
+    arrInstancias = arrInstancias || this.arrayInstancias;
+
+    let arr = [];
+
+    for (let i = 0; i < arrInstancias.length; i++) {
+      let instancia = arrInstancias[i];
+
+      if (instancia.tipo.indexOf(tamanio) !== -1) {
+        arr.push(instancia);
+      }
+    }
+
+    return arr;
   }
 
   precargaDeDatos() {

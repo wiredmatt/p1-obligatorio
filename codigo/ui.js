@@ -30,21 +30,39 @@ function inicio() {
     .querySelector("#aListadoUsuarios")
     .addEventListener("click", verListadoDeUsuarios);
 
+  document
+    .querySelector("#aGestionarInstancias")
+    .addEventListener("click", verListadoDeInstancias);
+
+  // document
+  //   .querySelector("#slcTipoCrear")
+  //   .addEventListener("change", refrescarDatosInstanciaCrear);
+
   // La pantalla por defecto es el login - no landing page (bajo presupuesto).
   mostrarPantallaLogin();
+
+  // forzar login mientras testeamos
+  iniciarSesionUI("mateo", "1234");
 }
 
 function mostrarPantallaLogin() {
-  document.querySelector("#divLogin").style.display = "block";
-  document.querySelector("#divRegistroUsuario").style.display = "none";
-  document.querySelector("#divContenidoAdministrador").style.display = "none";
+  mostrarElemento("divLogin");
+  ocultarElemento("divRegistroUsuario");
+  ocultarElemento("divRegistroUsuario");
+  ocultarElemento("divContenidoAdministrador");
+  ocultarElemento("cabezal");
+
   // document.querySelector("#divContenidoUsuario").style.display = "none";
-  document.querySelector("#cabezal").style.display = "none";
 }
 
-function iniciarSesionUI() {
-  let nomUsuario = obtenerValorDeUnElementoHTML("txtNomUsu");
-  let contrasena = obtenerValorDeUnElementoHTML("txtPassword");
+/**
+ * u,c = parametros opcionales para automatizar el login mientras testeamos.
+ * @param {string} u
+ * @param {string} c
+ */
+function iniciarSesionUI(u, c) {
+  let nomUsuario = obtenerValorDeUnElementoHTML("txtNomUsu") || u;
+  let contrasena = obtenerValorDeUnElementoHTML("txtPassword") || c;
 
   if (sistema.validarLogin(nomUsuario, contrasena)) {
     let esAdmin = sistema.esAdmin(nomUsuario);
@@ -53,6 +71,7 @@ function iniciarSesionUI() {
       document.querySelector("#divContenidoAdministrador").style.display =
         "block";
       mostrarNavAdmin();
+      verListadoDeUsuarios(); // por defecto mostrarle la lista de usuarios al admin.
     } else {
       ocultarNavAdmin();
       // document.querySelector("#divContenidoUsuario").style.display = "block";
@@ -168,9 +187,10 @@ function mostrarPantallaRegistro() {
 }
 
 function verListadoDeUsuarios() {
-  document.querySelector("#divAdminCrearPelicula").style.display = "none";
+  document.querySelector("#divAdminStockInstancias").style.display = "none";
 
   let tabla = `
+                <h2>Gestión de Usuarios del Sistema</h2>
                 <table>
                   <tr>
                       <th>
@@ -248,6 +268,8 @@ function verListadoDeUsuarios() {
       .querySelector(`#${idDelBoton}`)
       .addEventListener("click", bloquearUsuarioUI);
   }
+
+  document.querySelector("#divAdminAdministrarUsuario").style.display = "block";
 }
 
 function activarUsuarioUI() {
@@ -263,3 +285,149 @@ function bloquearUsuarioUI() {
   sistema.bloquearUsuario(nombreUsuario);
   verListadoDeUsuarios();
 }
+
+function verListadoDeInstancias() {
+  document.querySelector("#divAdminAdministrarUsuario").style.display = "none";
+
+  let tablaComputo = generarTablaParaCategoriaInstancia(
+    "Optimizadas para computo"
+  );
+
+  let tablaMemoria = generarTablaParaCategoriaInstancia(
+    "Optimizadas para memoria"
+  );
+
+  let tablaAlmacenamiento = generarTablaParaCategoriaInstancia(
+    "Optimizadas para almacenamiento"
+  );
+
+  let htmlFinal = `
+  <h2>Gestión de Instancias</h2>
+  ${tablaComputo}
+  <hr/>
+  ${tablaMemoria}
+  <hr/>
+  ${tablaAlmacenamiento}
+  `;
+
+  imprimirEnHtml("divAdminStockInstancias", htmlFinal);
+  mostrarElemento("divAdminStockInstancias");
+}
+
+/**
+ *
+ * @param {INSTANCIA_CATEGORIA} categoria
+ */
+function generarTablaParaCategoriaInstancia(categoria) {
+  let arrInstancias = sistema.buscarInstanciasPorCategoria(categoria);
+
+  let smalls = sistema.buscarInstanciasPorTamanio("small", arrInstancias);
+  let mediums = sistema.buscarInstanciasPorTamanio("medium", arrInstancias);
+  let larges = sistema.buscarInstanciasPorTamanio("large", arrInstancias);
+
+  let tabla = `
+                <h3>${categoria}</h3>
+                <table>
+                  <tr>
+                      <th>
+                        Tipo
+                      </th>
+                      <th>
+                        Stock Actual
+                      </th>
+                      <th>
+                        Stock a modificar
+                      </th>
+                      <th>
+                        Confirmar
+                      </th>
+                  </tr>
+                `;
+
+  let prefijo = prefijoSegunCategoria(categoria);
+
+  // i = almacenamiento no tiene smalls.
+  if (prefijo !== "i") {
+    tabla += generarFilaParaTipoInstancia(prefijo + "7.small", smalls.length);
+  }
+
+  tabla += generarFilaParaTipoInstancia(prefijo + "7.medium", mediums.length);
+  tabla += generarFilaParaTipoInstancia(prefijo + "7.large", larges.length);
+
+  tabla += "</table>";
+
+  return tabla;
+}
+
+function generarFilaParaTipoInstancia(tipo, stock) {
+  return `
+  <tr>
+    <td>${tipo}</ts>
+    <td>${stock}</td>
+    <td>
+      <input
+          type="number"
+          min="0"
+          id="numStockModificar${tipo}"
+          value="0"
+        />
+    </td>
+    <td>
+      <input
+        type="button"
+        id="btnStock${tipo}"
+        tipo-instancia="${tipo}"
+        value="Guardar"
+      />
+    </td>
+  </tr>
+  `;
+}
+
+// function refrescarDatosInstanciaCrear() {
+//   let tipoSeleccionado = obtenerValorDeUnElementoHTML("slcTipoCrear");
+
+//   let costoAlq = MaquinaVirtual.tipoACostoAlquiler(tipoSeleccionado);
+//   let costoEnc = MaquinaVirtual.tipoACostoEncendido(tipoSeleccionado);
+//   let id = MaquinaVirtual.contadorID;
+
+//   document.querySelector("#txtIDInstancia").value = id;
+//   document.querySelector("#txtCostoAlquiler").value = costoAlq;
+//   document.querySelector("#txtCostoEncendido").value = costoEnc;
+// }
+// <!-- <div id="divAdminCrearInstancia">
+// <h1>Crear una nueva instancia</h1>
+// <h2>Ingrese los datos</h2>
+// <label for="slcTipoCrear">Seleccione Tipo</label>
+// <select id="slcTipoCrear" style="width: 68%">
+//   <optgroup label="Optimizadas para Cómputo">
+//     <option value="c7.small">c7.small</option>
+//     <option value="c7.medium">c7.medium</option>
+//     <option value="c7.large">c7.large</option>
+//   </optgroup>
+//   <optgroup label="Optimizadas para Memoria">
+//     <option value="r7.small">r7.small</option>
+//     <option value="r7.medium">r7.medium</option>
+//     <option value="r7.large">r7.large</option>
+//   </optgroup>
+//   <optgroup label="Optimizadas para Almacenamiento">
+//     <option value="i7.medium">i7.medium</option>
+//     <option value="i7.large">i7.large</option>
+//   </optgroup>
+// </select>
+
+// <label for="txtIDInstancia">ID</label>
+// <input id="txtIDInstancia" type="text" disabled value="1" />
+
+// <label for="txtCostoAlquiler">Costo De Alquiler</label>
+// <input id="txtCostoAlquiler" type="text" disabled value="$20" />
+
+// <label for="txtCostoEncendido">Costo de Encendido</label>
+// <input id="txtCostoEncendido" type="text" disabled value="$2.5" />
+
+// <input
+//   id="btnCrearInstancia"
+//   type="button"
+//   value="Agregar instancia"
+// />
+// </div> -->
