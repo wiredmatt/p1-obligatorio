@@ -18,11 +18,13 @@
         />
         <ul id="navPrincipal">
           <li>
-            <a id="aCrearPelicula" class="nav-item-admin">Crear pelicula</a>
+            <a id="aGestionarInstancias" class="nav-item-admin"
+              >Gestionar Instancias</a
+            >
           </li>
           <li>
             <a id="aListadoUsuarios" class="nav-item-admin"
-              >Lista de usuarios</a
+              >Gestionar usuarios</a
             >
           </li>
           <li>
@@ -32,16 +34,14 @@
             <a id="aCerrarSesion">Cerrar Sesión</a>
           </li>
         </ul>
-        <!-- FIN AUX -->
       </div>
-      <!-- FIN CABEZAL -->
       <div id="contenido">
         <div id="divLogin">
           <h1>Inicio de sesion</h1>
-          <label for="txtNomUsu">Ingrese usuario</label>
-          <input type="text" id="txtNomUsu" value="mateo" />
+          <label for="txtNomUsu">Ingrese nombre de usuario</label>
+          <input type="text" id="txtNomUsu" />
           <label for="txtPassword">Ingrese contrasena</label>
-          <input type="password" id="txtPassword" value="1234" />
+          <input type="password" id="txtPassword" />
           <input type="button" id="btnIniciarSesion" value="Iniciar Sesion" />
           <input type="button" id="btnRegistrarse" value="Registrarse" />
 
@@ -68,69 +68,14 @@
         </div>
 
         <div id="divContenidoAdministrador">
-          <div id="divAdminCrearPelicula">
-            <h1>Crear una nueva pelicula</h1>
-            <h2>Ingrese los datos</h2>
-            <label for="txtNombre">Nombre</label>
-            <input id="txtNombre" type="text" />
-            <br />
-            <label for="txtAnio">Año</label>
-            <input id="txtAnio" type="text" />
-            <br />
-
-            <label for="slcGenero">Seleccione genero</label>
-            <select id="slcGenero">
-              <!--  <option value="com">Comedia</option>
-          <option value="dra">Drama</option>
-          <option value="cf">Ciencia Ficc.</option> -->
-            </select>
-            <br />
-
-            <label for="txtNroVotantes">Numero votantes</label>
-            <input id="txtNroVotantes" type="text" />
-            <br />
-            <label for="txtTotalPuntos">Total Puntos</label>
-            <input id="txtTotalPuntos" type="text" />
-
-            <br />
-            <input id="btnGuardar" type="button" value="Guardar" />
-
-            <input
-              id="btnListarTodas"
-              type="button"
-              value="Listar Todas las peliculas"
-            />
-
-            <input
-              id="btnListarProm4OMas"
-              type="button"
-              value="Listar peliculas prom 4 o mas"
-            />
-
-            <hr />
-
-            <label for="txtNombreBusqueda">Ingrese pelicula para buscar</label>
-            <input id="txtNombreBusqueda" type="text" />
-            <input
-              id="btnBuscarPelicula"
-              type="button"
-              value="Buscar pelicula"
-            />
-            <p id="pBusquedaPelicula"></p>
-
-            <p id="pResultado"></p>
-            <div id="divTabla"></div>
-          </div>
+          <div id="divAdminStockInstancias"></div>
           <div id="divAdminAdministrarUsuario"></div>
         </div>
       </div>
-      <!-- FIN CONTENIDO -->
       <div id="footer">
         <a href="https://www.ort.edu.uy">Footer</a>
       </div>
-      <!-- FIN PIE -->
     </div>
-    <!-- FIN CONTENEDOR -->
 
     <script src="codigo/libreria.js"></script>
     <script src="codigo/clases.js"></script>
