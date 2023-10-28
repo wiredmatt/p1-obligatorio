@@ -123,5 +123,7 @@ function formatearTipoUI(tipo) {
  * @returns {boolean}
  */
 function esNumeroEnteroValido(valor) {
-  return !isNaN(valor) && valor.indexOf(".") === -1 && Number(valor) >= 0;
+  return (
+    !isNaN(valor) && String(valor).indexOf(".") === -1 && Number(valor) >= 0
+  );
 }

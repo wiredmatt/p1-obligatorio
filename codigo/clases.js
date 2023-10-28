@@ -210,17 +210,17 @@ class MaquinaVirtual {
 class InstanciaAlquilada {
   /**
    * @param {number} instancia
-   * @param {number} usuario
+   * @param {string} nomUsuario
    */
-  constructor(idInstancia, idUsuario) {
+  constructor(idInstancia, nomUsuario) {
     /**
      * @type {number}
      */
     this.idInstancia = idInstancia;
 
     /**
-     * @type {number}
+     * @type {string}
      */
-    this.idUsuario = idUsuario;
+    this.nomUsuario = nomUsuario;
   }
 }
