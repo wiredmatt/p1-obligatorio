@@ -270,6 +270,16 @@ class Sistema {
   }
 
   /**
+   * @param {INSTANCIA_TIPO} pTipo
+   * @param {number} cantidadAgregar
+   */
+  agregarInstancias(pTipo, cantidadAgregar) {
+    for (let i = 0; i < cantidadAgregar; i++) {
+      this.agregarInstancia(pTipo);
+    }
+  }
+
+  /**
    * @param {INSTANCIA_CATEGORIA} categoria
    * @returns {MaquinaVirtual[]}
    */
@@ -321,36 +331,36 @@ class Sistema {
   }
 
   /**
-   * Buscará entre las máquinas disponibles (`k`) y verificará si es posible reducir a la cantidad deseada (`v`).
-   *
-   * En caso de que, `k - v < 0` retornará `false`, ya que no se puede reducir a la cantidad deseada sin eliminar de las máquinas que están alquiladas.
-   *
-   * En caso de que `k - v >= 0` retornará `true`.
    * @param {INSTANCIA_TIPO} tipo
-   * @param {number} aCantidad
+   * @param {number} cantidadAReducir Cantidad de instancias a sacar de las `libres`.
    */
-  reducirStock(tipo, aCantidad) {
+  reducirStockDisponible(tipo, cantidadAReducir) {
     let libres = this.buscarInstanciasLibresPorTipo(tipo);
 
-    if (libres.length - aCantidad < 0) {
-      return false;
-    }
+    if (cantidadAReducir > 0) {
+      const instanciasAEliminar = libres.splice(0, cantidadAReducir);
 
-    libres.splice(0, aCantidad);
+      // buscar el indice de esta instancia en el arreglo original
+      for (let i = 0; i < instanciasAEliminar.length; i++) {
+        const instanciaLibre = instanciasAEliminar[i];
 
-    for (let i = 0; i < libres.length; i++) {
-      let instancia = libres[i];
+        for (let j = 0; j < this.arrayInstancias.length; j++) {
+          const instancia = this.arrayInstancias[j];
 
-      for (let j = 0; j < this.arrayInstancias.length; j++) {
-        let instanciaEnArray = this.arrayInstancias[j];
-
-        if (instanciaEnArray.ID === instancia.ID) {
-          this.arrayInstancias.splice(j, 1);
+          if (instanciaLibre.ID === instancia.ID) {
+            this.arrayInstancias.splice(j, 1);
+          }
         }
       }
+
+      console.log(
+        `Se eliminaron ${instanciasAEliminar.length} instancias del tipo ${tipo}.`
+      );
+
+      return true;
     }
 
-    return true;
+    return false;
   }
 
   /**
@@ -360,13 +370,15 @@ class Sistema {
    */
   maquinaEstaLibre(id) {
     for (let i = 0; i < this.arrayAlquileres.length; i++) {
-      let instancia = this.arrayAlquileres[i];
+      let alquilada = this.arrayAlquileres[i];
 
-      if (instancia.id === id) {
+      if (alquilada.idInstancia === id) {
+        console.log(`la maquina ${id} NO esta libre`);
         return false;
       }
     }
 
+    console.log(`la maquina ${id} SI esta libre`);
     return true;
   }
 
@@ -394,16 +406,23 @@ class Sistema {
     return arr;
   }
 
-  // alquilarInstancia(idInstancia, idUsuario) {
-  //   let alquilada = new InstanciaAlquilada(idInstancia, idUsuario);
-  //   this.arrayAlquileres.push(alquilada);
-  // }
-
+  /**
+   *
+   * @param {INSTANCIA_TIPO} tipoInstancia
+   * @param {number} idUsuario
+   * @returns {boolean}
+   */
   alquilarInstancia(tipoInstancia, idUsuario) {
-    let instancia = this.buscar;
+    let instancias = this.buscarInstanciasLibresPorTipo(tipoInstancia);
 
-    // let alquilada = new InstanciaAlquilada(idInstancia, idUsuario);
-    // this.arrayAlquileres.push(alquilada);
+    if (instancias.length === 0) {
+      return false;
+    }
+
+    let alquilada = new InstanciaAlquilada(instancias[0].ID, idUsuario);
+    this.arrayAlquileres.push(alquilada);
+
+    return true;
   }
 
   precargaDeDatos() {
@@ -456,19 +475,18 @@ class Sistema {
     );
 
     // precarga de instancias
-    this.agregarInstancia("c7small");
-    this.agregarInstancia("c7small");
+    this.agregarInstancias("c7small", 8);
+    this.agregarInstancias("c7medium", 5);
+    this.agregarInstancias("c7large", 3);
 
-    this.agregarInstancia("c7large");
+    this.agregarInstancias("r7small", 7);
+    this.agregarInstancias("r7medium", 5);
+    this.agregarInstancias("r7large", 2);
 
-    this.agregarInstancia("r7medium");
-    this.agregarInstancia("r7medium");
+    this.agregarInstancias("i7medium", 3);
+    this.agregarInstancias("i7large", 2);
 
-    this.agregarInstancia("i7large");
-
-    // this.alquilarInstancia(
-    //   this.arrayInstancias[0].ID,
-    //   this.arrayUsuariosComunes[0].ID
-    // );
+    this.alquilarInstancia("c7small", this.arrayUsuariosComunes[0].ID);
+    this.alquilarInstancia("c7small", this.arrayUsuariosComunes[1].ID);
   }
 }
