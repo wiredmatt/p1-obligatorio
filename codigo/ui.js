@@ -1,6 +1,22 @@
 window.addEventListener("load", inicio);
 
+/**
+ * @type {Sistema}
+ * @global
+ */
 let sistema = new Sistema();
+
+/**
+ * @type {UsuarioComun}
+ * @global
+ */
+let usuarioLogeado = null;
+
+/**
+ * @type {("APAGADA" | "ENCENDIDA" | "todas")}
+ * @global
+ */
+let filtroInstanciasUsuario = "todas";
 
 function inicio() {
   // USUARIO UI - Usuarios se registran
@@ -30,9 +46,18 @@ function inicio() {
     .querySelector("#aListadoUsuarios")
     .addEventListener("click", verListadoDeUsuarios);
 
+  // ADMIN UI - Administrador puede modificar el stock de instancias
   document
     .querySelector("#aGestionarInstancias")
-    .addEventListener("click", verListadoDeInstancias);
+    .addEventListener("click", verListadoDeInstanciasAdmin);
+
+  // USUARIO UI - Usuario puede ver y operar sobre sus instancias
+  document
+    .querySelector("#aMisInstancias")
+    .addEventListener("click", verMisInstanciasUsuario);
+
+  // USUARIO UI - Usuario puede ver sus gastos
+  document.querySelector("#aMisGastos").addEventListener("click", verMisGastos);
 
   // La pantalla por defecto es el login - no landing page (bajo presupuesto).
   mostrarPantallaLogin();
@@ -44,9 +69,8 @@ function mostrarPantallaLogin() {
   mostrarElemento("divLogin");
   ocultarElemento("divRegistroUsuario");
   ocultarElemento("divContenidoAdministrador");
+  ocultarElemento("divContenidoUsuario");
   ocultarElemento("cabezal");
-
-  // document.querySelector("#divContenidoUsuario").style.display = "none";
 }
 
 /**
@@ -55,6 +79,13 @@ function mostrarPantallaLogin() {
  * @param {?string} c
  */
 function iniciarSesionUI(u, c) {
+  usuarioLogeado = null;
+  ocultarNavAdmin();
+  ocultarNavUsuario();
+  ocultarElemento("divContenidoAdministrador");
+  ocultarElemento("divContenidoUsuario");
+  // ocultarOtrasCosas
+
   let nomUsuario = obtenerValorDeUnElementoHTML("txtNomUsu") || u;
   let contrasena = obtenerValorDeUnElementoHTML("txtPassword") || c;
 
@@ -73,15 +104,18 @@ function iniciarSesionUI(u, c) {
       document.querySelector("#divContenidoAdministrador").style.display =
         "block";
       mostrarNavAdmin();
+      mostrarElemento("divContenidoAdministrador");
       verListadoDeUsuarios(); // por defecto mostrarle la lista de usuarios al admin.
     } else {
-      ocultarNavAdmin();
+      usuarioLogeado = sistema.buscarUsuarioObjeto(nomUsuario);
+      mostrarNavUsuario();
+      mostrarElemento("divContenidoUsuario");
+      verMisInstanciasUsuario(); // por defecto mostrarle sus instancias al usuario
       // document.querySelector("#divContenidoUsuario").style.display = "block";
     }
 
-    document.querySelector("#cabezal").style.display = "block";
-
-    document.querySelector("#divLogin").style.display = "none";
+    mostrarElemento("cabezal");
+    ocultarElemento("divLogin");
     limpiarUnCampoDeTexto("txtNomUsu");
     limpiarUnCampoDeTexto("txtPassword");
     limpiarUnElemento("pMensajesLogin");
@@ -167,6 +201,12 @@ function validarDatosRegistroUsuario(
   if (!hayCaracteres(pNomUsu)) {
     arrayErrores.push("Debe ingresar nombre de usuario.");
   }
+
+  if (!sistema.validarNombreUsuario(pNomUsu)) {
+    arrayErrores.push(
+      "El nombre de usuario debe tener un mínimo de 5 caracteres, contando con al menos una mayúscula, una minúscula y un número. Se permiten puntos y guines bajos."
+    );
+  }
   if (!hayCaracteres(pContrasena) || !sistema.validarContrasena(pContrasena)) {
     arrayErrores.push(
       "Debe ingresar una contraseña válida. Mínimo de 5 caracteres, contando con al menos una mayúscula, una minúscula y un número."
@@ -182,16 +222,17 @@ function validarDatosRegistroUsuario(
 }
 
 function cerrarSesionUI() {
+  usuarioLogeado = null;
   mostrarPantallaLogin();
 }
 
 function mostrarPantallaRegistro() {
-  document.querySelector("#divRegistroUsuario").style.display = "block";
-  document.querySelector("#divLogin").style.display = "none";
+  ocultarElemento("divLogin");
+  mostrarElemento("divRegistroUsuario");
 }
 
 function verListadoDeUsuarios() {
-  document.querySelector("#divAdminStockInstancias").style.display = "none";
+  ocultarElemento("divAdminStockInstancias");
 
   let tabla = `
                 <h2>Gestión de Usuarios del Sistema</h2>
@@ -290,18 +331,18 @@ function bloquearUsuarioUI() {
   verListadoDeUsuarios();
 }
 
-function verListadoDeInstancias() {
+function verListadoDeInstanciasAdmin() {
   document.querySelector("#divAdminAdministrarUsuario").style.display = "none";
 
-  let tablaComputo = generarTablaParaCategoriaInstancia(
+  let tablaComputo = generarTablaParaCategoriaInstanciaAdmin(
     "Optimizadas para computo"
   );
 
-  let tablaMemoria = generarTablaParaCategoriaInstancia(
+  let tablaMemoria = generarTablaParaCategoriaInstanciaAdmin(
     "Optimizadas para memoria"
   );
 
-  let tablaAlmacenamiento = generarTablaParaCategoriaInstancia(
+  let tablaAlmacenamiento = generarTablaParaCategoriaInstanciaAdmin(
     "Optimizadas para almacenamiento"
   );
 
@@ -321,7 +362,7 @@ function verListadoDeInstancias() {
 
     document
       .querySelector(`#btnStockGuardar${tipo}`)
-      .addEventListener("click", guardarCambioStockTipo);
+      .addEventListener("click", guardarCambioStockTipoAdmin);
   }
 
   mostrarElemento("divAdminStockInstancias");
@@ -331,7 +372,7 @@ function verListadoDeInstancias() {
  * Genera el html para una `table` que contiene la información de los distintos tipos de instancias de una categoria dada.
  * @param {INSTANCIA_CATEGORIA} categoria
  */
-function generarTablaParaCategoriaInstancia(categoria) {
+function generarTablaParaCategoriaInstanciaAdmin(categoria) {
   let arrInstancias = sistema.buscarInstanciasPorCategoria(categoria);
 
   let smalls = sistema.buscarInstanciasPorTamanio("small", arrInstancias);
@@ -367,11 +408,17 @@ function generarTablaParaCategoriaInstancia(categoria) {
 
   // i = almacenamiento no tiene smalls. No le generamos fila.
   if (prefijo !== "i") {
-    tabla += generarFilaParaTipoInstancia(prefijo + "small", smalls.length);
+    tabla += generarFilaParaTipoInstanciaAdmin(
+      prefijo + "small",
+      smalls.length
+    );
   }
 
-  tabla += generarFilaParaTipoInstancia(prefijo + "medium", mediums.length);
-  tabla += generarFilaParaTipoInstancia(prefijo + "large", larges.length);
+  tabla += generarFilaParaTipoInstanciaAdmin(
+    prefijo + "medium",
+    mediums.length
+  );
+  tabla += generarFilaParaTipoInstanciaAdmin(prefijo + "large", larges.length);
 
   tabla += "</table>";
 
@@ -384,7 +431,7 @@ function generarTablaParaCategoriaInstancia(categoria) {
  * @param {number} stock
  * @returns
  */
-function generarFilaParaTipoInstancia(tipo, stock) {
+function generarFilaParaTipoInstanciaAdmin(tipo, stock) {
   let libres = sistema.buscarInstanciasLibresPorTipo(tipo);
 
   /**
@@ -417,9 +464,9 @@ function generarFilaParaTipoInstancia(tipo, stock) {
 }
 
 /**
- * función bindeada al evento "click" en los botonoes de "Guardar" de la pantalla `Gestión de Instancias`.
+ * bindeada al evento "click" en los botonoes de "Guardar" de la pantalla `Gestión de Instancias`.
  */
-function guardarCambioStockTipo() {
+function guardarCambioStockTipoAdmin() {
   let tipo = this.getAttribute("tipo-instancia");
 
   let valorActual = sistema.buscarInstanciasLibresPorTipo(tipo).length;
@@ -439,5 +486,266 @@ function guardarCambioStockTipo() {
     // TODO: mostrar mensaje de error - Preguntarle al profe donde se muestran / como
   }
 
-  verListadoDeInstancias();
+  verListadoDeInstanciasAdmin();
+}
+
+/**
+ * Muestra todas las instancias que se pueden alquilar
+ */
+function verListadoDeInstanciasDisponiblesUsuario() {}
+
+function verMisInstanciasUsuario() {
+  ocultarElemento("divUsuarioMisGastos");
+
+  let misInstancias = sistema.buscarInstanciasDeUsuario(
+    usuarioLogeado.nombreUsuario
+  );
+
+  let tabla = `
+                <h2>Mis Instancias</h2>
+                
+                <select id="slcFiltroMisInstancias" style="width: 100%;">
+                </select>
+
+                <table>
+                  <tr>
+                      <th>
+                        Tipo
+                      </th>
+                      <th>
+                        Estado
+                      </th>
+                      <th>
+                        Veces iniciada
+                      </th>
+                      <th>
+                        Operar
+                      </th>
+                  </tr>
+                `;
+
+  for (let i = 0; i < misInstancias.length; i++) {
+    if (
+      filtroInstanciasUsuario !== "todas" &&
+      misInstancias[i].estado !== filtroInstanciasUsuario
+    ) {
+      continue;
+    }
+
+    let instancia = misInstancias[i];
+
+    let textoAccion = "Encender";
+    let clase = "encenderInstancia";
+
+    if (instancia.estado === "ENCENDIDA") {
+      textoAccion = "Apagar";
+      clase = "apagarInstancia";
+    }
+
+    let botonAccion = `
+    <td>
+      <input 
+        instancia-id="${instancia.ID}" 
+        class="${clase}" id="btnOperarInstancia${instancia.ID}" 
+        type="button" value="${textoAccion}"
+      >
+    </td>`;
+
+    let textoVeces = "veces";
+
+    if (instancia.contadorEncendido === 1) {
+      textoVeces = "vez";
+    }
+
+    tabla += `
+                <tr>
+                    <td>${formatearTipoUI(instancia.tipo)}</td>
+                    <td>${instancia.estado}</td>
+                    <td>${instancia.contadorEncendido} ${textoVeces}</td>
+                    ${botonAccion}
+                </tr>    
+            `;
+  }
+
+  tabla += `</table>`;
+
+  // agregar la tabla
+  imprimirEnHtml("divUsuarioMisInstancias", tabla);
+
+  // poblar de opciones el select de filtros
+  document.querySelector("#slcFiltroMisInstancias").innerHTML = `
+    <option id="todas" value="todas">Todas las instancias</option>
+    <option id="ENCENDIDA" value="ENCENDIDA">Encendidas</option>
+    <option id="APAGADA" value="APAGADA">Apagadas</option>
+  `;
+
+  // buscar la opcion que corresponde al filtro actual y marcarla como seleccionada
+  document
+    .querySelector(`#${filtroInstanciasUsuario}`)
+    .setAttribute("selected", true);
+
+  // bindear el evento change del select a la funcion de filtrado
+  document
+    .querySelector("#slcFiltroMisInstancias")
+    .addEventListener("change", changeFiltroInstancias);
+
+  // bindear los eventos click de los botones de encendido
+  let botonesDeEncendido = document.querySelectorAll(".encenderInstancia");
+  for (let i = 0; i < botonesDeEncendido.length; i++) {
+    let idDelBoton = botonesDeEncendido[i].id;
+    document
+      .querySelector(`#${idDelBoton}`)
+      .addEventListener("click", encenderInstanciaUI);
+  }
+
+  // bindear los eventos click de los botones de apagado
+  let botonesDeApagado = document.querySelectorAll(".apagarInstancia");
+  for (let i = 0; i < botonesDeApagado.length; i++) {
+    let idDelBoton = botonesDeApagado[i].id;
+    document
+      .querySelector(`#${idDelBoton}`)
+      .addEventListener("click", apagarInstanciaUI);
+  }
+}
+
+function encenderInstanciaUI() {
+  let idInstancia = this.getAttribute("instancia-id");
+  console.log(idInstancia);
+
+  sistema.encenderInstancia(Number(idInstancia));
+  verMisInstanciasUsuario();
+}
+
+function apagarInstanciaUI() {
+  let idInstancia = this.getAttribute("instancia-id");
+
+  sistema.apagarInstancia(Number(idInstancia));
+  verMisInstanciasUsuario();
+}
+
+function changeFiltroInstancias() {
+  let filtro = this.value;
+  filtrarMisInstanciasUsuario(filtro);
+}
+
+/**
+ * Muestra las instancias que el usuario tiene alquiladas.
+ *
+ * Opcionalmente, se puede filtrar por un estado dado.
+ *
+ * @param {("APAGADA" | "ENCENDIDA" | "todas")} filtro
+ */
+function filtrarMisInstanciasUsuario(filtro = "todas") {
+  filtroInstanciasUsuario = filtro;
+  verMisInstanciasUsuario();
+}
+
+function verMisGastos() {
+  ocultarElemento("divUsuarioMisInstancias");
+
+  let tabla = `
+                <h2>Mis Gastos</h2>
+                <table>
+                  <tr>
+                      <th>
+                        Tipo de Instancia
+                      </th>
+                      <th>
+                        Costo por Encendido
+                      </th>
+                      <th>
+                        Total de veces encendida
+                      </th>
+                      <th>
+                        Costo total
+                      </th>
+                  </tr>
+                `;
+
+  let todasMisInstancias = sistema.buscarInstanciasDeUsuario(
+    usuarioLogeado.nombreUsuario
+  );
+
+  let c7smalls = [];
+  let c7mediums = [];
+  let c7larges = [];
+  let r7smalls = [];
+  let r7mediums = [];
+  let r7larges = [];
+  let i7mediums = [];
+  let i7larges = [];
+
+  for (let i = 0; i < todasMisInstancias.length; i++) {
+    let instancia = todasMisInstancias[i];
+
+    switch (instancia.tipo) {
+      case "c7small":
+        c7smalls.push(instancia);
+        break;
+      case "c7medium":
+        c7mediums.push(instancia);
+        break;
+      case "c7large":
+        c7larges.push(instancia);
+        break;
+      case "r7small":
+        r7smalls.push(instancia);
+        break;
+      case "r7medium":
+        r7mediums.push(instancia);
+        break;
+      case "r7large":
+        r7larges.push(instancia);
+        break;
+      case "i7medium":
+        i7mediums.push(instancia);
+        break;
+      case "i7large":
+        i7larges.push(instancia);
+        break;
+    }
+  }
+
+  tabla += crearFilaCostosUsuario(c7smalls);
+  tabla += crearFilaCostosUsuario(c7mediums);
+  tabla += crearFilaCostosUsuario(c7larges);
+  tabla += crearFilaCostosUsuario(r7smalls);
+  tabla += crearFilaCostosUsuario(r7mediums);
+  tabla += crearFilaCostosUsuario(r7larges);
+  tabla += crearFilaCostosUsuario(i7mediums);
+  tabla += crearFilaCostosUsuario(i7larges);
+
+  tabla += "</table>";
+
+  imprimirEnHtml("divUsuarioMisGastos", tabla);
+  mostrarElemento("divUsuarioMisGastos");
+}
+
+/**
+ *
+ * @param {MaquinaVirtual[]} arrInstancias
+ */
+function crearFilaCostosUsuario(arrInstancias) {
+  if (arrInstancias.length === 0) {
+    return "";
+  }
+
+  let tipo = arrInstancias[0].tipo;
+  let costoEncendido = tipoACostoEncendido(tipo);
+  let totalEncendidos = 0;
+
+  for (let i = 0; i < arrInstancias.length; i++) {
+    totalEncendidos += arrInstancias[i].contadorEncendido;
+  }
+
+  let costoTotal = costoEncendido * totalEncendidos;
+
+  return `
+  <tr>
+    <td>${formatearTipoUI(tipo)}</td>
+    <td>US$ ${costoEncendido}</td>
+    <td>${totalEncendidos}</td>
+    <td>US$ ${costoTotal}</td>
+  </tr>
+  `;
 }
