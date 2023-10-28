@@ -21,7 +21,12 @@ class Sistema {
     this.precargaDeDatos();
   }
 
-  //validar login
+  /**
+   * `true` si las credenciales son válidas, `false` si no.
+   * @param {string} pNomUsuario
+   * @param {string} pContrasena
+   * @returns {boolean}
+   */
   validarLogin(pNomUsuario, pContrasena) {
     let i = 0;
     while (i < this.arrayUsuariosAdmin.length) {
@@ -53,6 +58,25 @@ class Sistema {
     return false;
   }
 
+  /**
+   * @param {string} pNomUsuario
+   * @returns {boolean}
+   */
+  usuarioEstaActivo(pNomUsuario) {
+    let usuario = this.buscarUsuarioObjeto(pNomUsuario);
+    if (usuario !== null) {
+      if (usuario.estado === "activo") {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * `true` si el usuario es administrador, `false` si no.
+   * @param {string} pNomUsuario
+   * @returns
+   */
   esAdmin(pNomUsuario) {
     let esAdmin = false;
 
@@ -65,9 +89,17 @@ class Sistema {
     return esAdmin;
   }
 
+  /**
+   *
+   * @param {string} pNombre
+   * @param {string} pApellido
+   * @param {string} pNomUsu
+   * @param {string} pContrasena
+   * @param {number} pNroTjt
+   * @param {number} pCvcTjt
+   * @returns
+   */
   registrarUsuario(pNombre, pApellido, pNomUsu, pContrasena, pNroTjt, pCvcTjt) {
-    //el estado por defecto siempre va a ser pendiente, por lo tanto  lo seteo yo a mano
-
     if (
       !this.validarDatosUsuario(
         pNombre,
@@ -123,23 +155,29 @@ class Sistema {
       !this.validarContrasena(pContrasena) ||
       !this.validarTarjeta(pNroTjt)
     ) {
-      //esValido = false;
       return false;
     }
-    //return esValido;
     return true;
   }
 
   validarContrasena(pContrasena) {
-    //validar que tenga la menos 3 caracteres
-    /*
-            if(pContrasena.length >= 3) {
-                return true;
-            }
-            return false;
-        
-        */
-    return pContrasena.length >= 3;
+    let cumpleLargo = pContrasena.length >= 5;
+    let tieneMayus = false;
+    let tieneMinus = false;
+    let tieneNumero = false;
+
+    for (let i = 0; i < pContrasena.length; i++) {
+      let caracterActual = pContrasena.charAt(i);
+
+      if (!isNaN(caracterActual)) {
+        tieneNumero = true;
+      } else if (caracterActual === caracterActual.toUpperCase()) {
+        tieneMayus = true;
+      } else if (caracterActual === caracterActual.toLowerCase()) {
+        tieneMinus = true;
+      }
+    }
+    return cumpleLargo && tieneMayus && tieneMinus && tieneNumero;
   }
 
   buscarUsuarioObjeto(pNombreUsuario) {
@@ -442,7 +480,7 @@ class Sistema {
    * @returns {boolean}
    */
   alquilarInstancia(tipoInstancia, nomUsuario) {
-    if (!this.buscarUsuarioObjeto(nomUsuario)) {
+    if (!this.usuarioEstaActivo(nomUsuario)) {
       return false;
     }
 
@@ -460,9 +498,9 @@ class Sistema {
 
   precargaDeDatos() {
     // precarga de usuarios administradores
-    let admin1 = new UsuarioAdministrador("gaston", "1234");
-    let admin2 = new UsuarioAdministrador("mateo", "1234");
-    let admin3 = new UsuarioAdministrador("matt1", "1234");
+    let admin1 = new UsuarioAdministrador("gaston", "1234La");
+    let admin2 = new UsuarioAdministrador("mateo", "1234La");
+    let admin3 = new UsuarioAdministrador("matt1", "1234La");
     this.arrayUsuariosAdmin.push(admin1, admin2, admin3);
 
     // precarga de usuarios comunes
@@ -470,7 +508,7 @@ class Sistema {
       "mateo",
       "carriqui",
       "matt",
-      "1234",
+      "1234La",
       "4539-6253-0847-8250",
       "323"
     );
@@ -478,7 +516,7 @@ class Sistema {
       "Gaston",
       "Sanguinetti",
       "g.sangui",
-      "1234",
+      "1234La",
       "4539-6253-0847-8250",
       "323"
     );
@@ -486,7 +524,7 @@ class Sistema {
       "Mateo",
       "Sanguinetti",
       "m.sangui",
-      "1234",
+      "1234La",
       "4539-6253-0847-8250",
       "323"
     );
