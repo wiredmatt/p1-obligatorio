@@ -66,8 +66,7 @@ function iniciarSesionUI(u, c) {
       document.querySelector("#divContenidoAdministrador").style.display =
         "block";
       mostrarNavAdmin();
-      // verListadoDeUsuarios(); // por defecto mostrarle la lista de usuarios al admin.
-      verListadoDeInstancias();
+      verListadoDeUsuarios(); // por defecto mostrarle la lista de usuarios al admin.
     } else {
       ocultarNavAdmin();
       // document.querySelector("#divContenidoUsuario").style.display = "block";
