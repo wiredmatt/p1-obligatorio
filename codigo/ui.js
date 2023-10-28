@@ -407,16 +407,20 @@ function guardarCambioStockTipo() {
   let tipo = this.getAttribute("tipo-instancia");
 
   let valorActual = sistema.buscarInstanciasLibresPorTipo(tipo).length;
-  let valorNuevo = Number(
-    document.querySelector(`#numStockModificar${tipo}`).value
-  );
+  let valorNuevo = document.querySelector(`#numStockModificar${tipo}`).value;
 
-  if (valorNuevo > valorActual) {
-    let cantidadAgregar = valorNuevo - valorActual;
-    sistema.agregarInstancias(tipo, cantidadAgregar);
-  } else if (valorNuevo < valorActual && valorNuevo >= 0) {
-    let cantidadAReducir = valorActual - valorNuevo;
-    sistema.reducirStockDisponible(tipo, cantidadAReducir);
+  if (esNumeroEnteroValido(valorNuevo)) {
+    valorNuevoNumerico = Number(valorNuevo);
+
+    if (valorNuevoNumerico > valorActual) {
+      let cantidadAgregar = valorNuevoNumerico - valorActual;
+      sistema.agregarInstancias(tipo, cantidadAgregar);
+    } else if (valorNuevoNumerico < valorActual) {
+      let cantidadAReducir = valorActual - valorNuevoNumerico;
+      sistema.reducirStockDisponible(tipo, cantidadAReducir);
+    }
+  } else {
+    // TODO: mostrar mensaje de error - Preguntarle al profe donde se muestran / como
   }
 
   verListadoDeInstancias();

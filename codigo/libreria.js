@@ -117,3 +117,11 @@ function formatearTipoUI(tipo) {
 
   return pre + "." + post;
 }
+
+/**
+ * @param {number|string} valor
+ * @returns {boolean}
+ */
+function esNumeroEnteroValido(valor) {
+  return !isNaN(valor) && valor.indexOf(".") === -1 && Number(valor) >= 0;
+}
