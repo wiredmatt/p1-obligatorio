@@ -5,7 +5,7 @@
  */
 const release = true;
 
-function mock() {
+function tryMock() {
   if (!release) {
     /**
      * ADMIN LOGIN

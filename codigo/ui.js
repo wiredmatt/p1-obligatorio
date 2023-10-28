@@ -37,7 +37,7 @@ function inicio() {
   // La pantalla por defecto es el login - no landing page (bajo presupuesto).
   mostrarPantallaLogin();
 
-  mock(); // forzar login, moverse a pagina especifica, etc. Solo habilitada en desarrollo.
+  tryMock(); // forzar login, moverse a pagina especifica, etc. Solo habilitada en desarrollo.
 }
 
 function mostrarPantallaLogin() {
