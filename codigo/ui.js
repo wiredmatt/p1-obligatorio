@@ -71,7 +71,8 @@ function iniciarSesionUI(u, c) {
       document.querySelector("#divContenidoAdministrador").style.display =
         "block";
       mostrarNavAdmin();
-      verListadoDeUsuarios(); // por defecto mostrarle la lista de usuarios al admin.
+      // verListadoDeUsuarios(); // por defecto mostrarle la lista de usuarios al admin.
+      verListadoDeInstancias();
     } else {
       ocultarNavAdmin();
       // document.querySelector("#divContenidoUsuario").style.display = "block";
@@ -341,10 +342,16 @@ function generarTablaParaCategoriaInstancia(categoria) {
                         Tipo
                       </th>
                       <th>
-                        Stock Actual
+                        Unidades Totales
                       </th>
                       <th>
-                        Stock a modificar
+                        Unidades Alquiladas
+                      </th>
+                      <th>
+                        Unidades Disponibles
+                      </th>
+                      <th>
+                        Modificar Disponibles
                       </th>
                       <th>
                         Confirmar
@@ -368,16 +375,20 @@ function generarTablaParaCategoriaInstancia(categoria) {
 }
 
 function generarFilaParaTipoInstancia(tipo, stock) {
+  let libres = sistema.buscarInstanciasLibresPorTipo(tipo);
+
   return `
   <tr>
     <td>${formatearTipoUI(tipo)}</ts>
     <td>${stock}</td>
+    <td>${stock - libres.length}</td>
+    <td>${libres.length}</td>
     <td>
       <input
           type="number"
           min="0"
           id="numStockModificar${tipo}"
-          value="${stock}"
+          value="${libres.length}"
         />
     </td>
     <td>
@@ -395,28 +406,15 @@ function generarFilaParaTipoInstancia(tipo, stock) {
 function guardarCambioStockTipo() {
   let tipo = this.getAttribute("tipo-instancia");
 
-  let valorActual = sistema.buscarInstanciasPorTipo(tipo).length;
+  let valorActual = sistema.buscarInstanciasLibresPorTipo(tipo).length;
   let valorNuevo = document.querySelector(`#numStockModificar${tipo}`).value;
 
   if (valorNuevo > valorActual) {
     let cantidadAgregar = valorNuevo - valorActual;
-
-    for (let i = 0; i < cantidadAgregar; i++) {
-      sistema.agregarInstancia(tipo);
-    }
-  } else {
-    let ok = sistema.reducirStock(tipo, valorNuevo);
-
-    if (!ok) {
-      let todas = sistema.buscarInstanciasPorTipo(tipo);
-      let libres = sistema.buscarInstanciasLibres(tipo);
-
-      alert(
-        `Error. La cantidad ingresada supera a la efectivamente disponible. El stock se puede reducir hasta ${
-          todas.length - libres.length
-        } unidades.`
-      );
-    }
+    sistema.agregarInstancias(tipo, cantidadAgregar);
+  } else if (valorNuevo < valorActual) {
+    let cantidadAReducir = valorActual - valorNuevo;
+    sistema.reducirStockDisponible(tipo, cantidadAReducir);
   }
 
   verListadoDeInstancias();
