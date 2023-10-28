@@ -315,7 +315,6 @@ function verListadoDeInstancias() {
   `;
 
   imprimirEnHtml("divAdminStockInstancias", htmlFinal);
-  mostrarElemento("divAdminStockInstancias");
 
   for (let i = 0; i < arrTipoInstancias.length; i++) {
     let tipo = arrTipoInstancias[i];
@@ -324,10 +323,12 @@ function verListadoDeInstancias() {
       .querySelector(`#btnStockGuardar${tipo}`)
       .addEventListener("click", guardarCambioStockTipo);
   }
+
+  mostrarElemento("divAdminStockInstancias");
 }
 
 /**
- *
+ * Genera el html para una `table` que contiene la información de los distintos tipos de instancias de una categoria dada.
  * @param {INSTANCIA_CATEGORIA} categoria
  */
 function generarTablaParaCategoriaInstancia(categoria) {
@@ -364,22 +365,31 @@ function generarTablaParaCategoriaInstancia(categoria) {
 
   let prefijo = prefijoSegunCategoria(categoria);
 
-  // i = almacenamiento no tiene smalls.
+  // i = almacenamiento no tiene smalls. No le generamos fila.
   if (prefijo !== "i") {
-    tabla += generarFilaParaTipoInstancia(prefijo + "7small", smalls.length);
+    tabla += generarFilaParaTipoInstancia(prefijo + "small", smalls.length);
   }
 
-  tabla += generarFilaParaTipoInstancia(prefijo + "7medium", mediums.length);
-  tabla += generarFilaParaTipoInstancia(prefijo + "7large", larges.length);
+  tabla += generarFilaParaTipoInstancia(prefijo + "medium", mediums.length);
+  tabla += generarFilaParaTipoInstancia(prefijo + "large", larges.length);
 
   tabla += "</table>";
 
   return tabla;
 }
 
+/**
+ * Genera el html para una fila de una tabla que contiene la información de un tipo de instancia dado.
+ * @param {INSTANCIA_TIPO} tipo
+ * @param {number} stock
+ * @returns
+ */
 function generarFilaParaTipoInstancia(tipo, stock) {
   let libres = sistema.buscarInstanciasLibresPorTipo(tipo);
 
+  /**
+   * `stock - libres.length` = cantidad que están alquiladas actualmente
+   */
   return `
   <tr>
     <td>${formatearTipoUI(tipo)}</ts>
@@ -406,6 +416,9 @@ function generarFilaParaTipoInstancia(tipo, stock) {
   `;
 }
 
+/**
+ * función bindeada al evento "click" en los botonoes de "Guardar" de la pantalla `Gestión de Instancias`.
+ */
 function guardarCambioStockTipo() {
   let tipo = this.getAttribute("tipo-instancia");
 

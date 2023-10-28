@@ -14,7 +14,7 @@ class Sistema {
     this.arrayInstancias = [];
 
     /**
-     * @type {InstanciaAlquilada[]}
+     * @type {Alquiler[]}
      */
     this.arrayAlquileres = [];
 
@@ -295,21 +295,42 @@ class Sistema {
     return tarjetaSinGuiones;
   }
 
+  /**
+   * Marca como "activo" al usuario dado.
+   * @param {string} pNombreUsuario
+   * @returns {boolean}
+   */
   activarUsuario(pNombreUsuario) {
     let usuario = this.buscarUsuarioObjeto(pNombreUsuario);
     if (usuario !== null) {
       usuario.estado = "activo";
+      return true;
     }
+
+    return false;
   }
 
+  /**
+   * Marca como "bloqueado" al usuario dado.
+   * @param {string} pNombreUsuario
+   */
   bloquearUsuario(pNombreUsuario) {
     let usuario = this.buscarUsuarioObjeto(pNombreUsuario);
     if (usuario !== null) {
       usuario.estado = "bloqueado";
       this.liberarInstanciasAlquiladas(pNombreUsuario);
+      return true;
     }
+
+    return false;
   }
 
+  /**
+   * Remueve los alquileres efectuados del usuario dado.
+   *
+   * Esta función es llamada al bloquear un usuario. NO debe usarse en otro contexto.
+   * @param {string} pNombreUsuario
+   */
   liberarInstanciasAlquiladas(pNombreUsuario) {
     for (let i = 0; i < this.arrayAlquileres.length; i++) {
       let alquilada = this.arrayAlquileres[i];
@@ -321,6 +342,7 @@ class Sistema {
   }
 
   /**
+   * Agrega una instancia del tipo dado.
    * @param {INSTANCIA_TIPO} pTipo
    */
   agregarInstancia(pTipo) {
@@ -329,39 +351,50 @@ class Sistema {
   }
 
   /**
+   * Intenta agregar la cantidad de instancias indicadas para el tipo dado.
+   * En caso de que la cantidad no sea un número entero válido, no se agregará ninguna instancia.
+   *
+   * Ejemplo: `agregarInstancias("c7small", 5)` agregará 5 instancias del tipo "c7small".
+   *
+   * Ejemplo: `agregarInstancias("c7small", 5.5)` NO agregará ninguna instancia.
+   *
    * @param {INSTANCIA_TIPO} pTipo
    * @param {number} cantidadAgregar
+   * @returns {boolean}
    */
   agregarInstancias(pTipo, cantidadAgregar) {
     if (!esNumeroEnteroValido(cantidadAgregar)) {
-      return;
+      return false;
     }
 
     for (let i = 0; i < cantidadAgregar; i++) {
       this.agregarInstancia(pTipo);
     }
+
+    return true;
   }
 
   /**
+   * Dada una categoría, devuelve todas las instancias que pertenecen a dicha categoría.
    * @param {INSTANCIA_CATEGORIA} categoria
    * @returns {MaquinaVirtual[]}
    */
   buscarInstanciasPorCategoria(categoria) {
-    let arr = [];
+    let instancias = [];
 
     for (let i = 0; i < this.arrayInstancias.length; i++) {
       let instancia = this.arrayInstancias[i];
 
       if (instancia.categoria === categoria) {
-        arr.push(instancia);
+        instancias.push(instancia);
       }
     }
 
-    return arr;
+    return instancias;
   }
 
   /**
-   * Conseguir una máquina disponible para dársela en alquiler al usuario que la requiera.
+   * Consigue las máquinas disponibles en el sistema.
    * @param {INSTANCIA_TIPO} tipo
    * @returns {MaquinaVirtual[]}
    */
@@ -398,6 +431,11 @@ class Sistema {
   }
 
   /**
+   * Intenta reducir el stock de instancias disponibles. En caso de que la cantidad no sea un número entero válido, no se reducirá el stock.
+   *
+   * Ejemplo: `reducirStockDisponible("c7small", 5)` removerá 5 instancias del tipo "c7small".
+   *
+   * Ejemplo: `reducirStockDisponible("c7small", 5.5)` NO removerá ninguna instancia.
    * @param {INSTANCIA_TIPO} tipo
    * @param {number} cantidadAReducir Cantidad de instancias a sacar de las `libres`.
    */
@@ -490,7 +528,7 @@ class Sistema {
       return false;
     }
 
-    let alquilada = new InstanciaAlquilada(instancias[0].ID, nomUsuario);
+    let alquilada = new Alquiler(instancias[0].ID, nomUsuario);
     this.arrayAlquileres.push(alquilada);
 
     return true;
