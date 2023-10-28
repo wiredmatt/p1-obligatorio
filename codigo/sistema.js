@@ -268,6 +268,17 @@ class Sistema {
     let usuario = this.buscarUsuarioObjeto(pNombreUsuario);
     if (usuario !== null) {
       usuario.estado = "bloqueado";
+      this.liberarInstanciasAlquiladas(pNombreUsuario);
+    }
+  }
+
+  liberarInstanciasAlquiladas(pNombreUsuario) {
+    for (let i = 0; i < this.arrayAlquileres.length; i++) {
+      let alquilada = this.arrayAlquileres[i];
+
+      if (alquilada.nomUsuario === pNombreUsuario) {
+        this.arrayAlquileres.splice(i, 1);
+      }
     }
   }
 
