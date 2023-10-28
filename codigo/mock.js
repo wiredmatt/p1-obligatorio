@@ -17,6 +17,9 @@ function tryMock() {
      */
     // iniciarSesionUI("matt", "1234"); // matt es usuario.
 
+    sistema.activarUsuario(sistema.arrayUsuariosComunes[0].nombreUsuario);
+    sistema.activarUsuario(sistema.arrayUsuariosComunes[1].nombreUsuario);
+
     /**
      * ALQUILARLE MAQUINAS A USUARIOS
      */
@@ -28,5 +31,7 @@ function tryMock() {
       "c7small",
       sistema.arrayUsuariosComunes[1].nombreUsuario
     );
+
+    verListadoDeInstancias();
   }
 }
