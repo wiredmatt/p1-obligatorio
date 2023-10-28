@@ -145,18 +145,14 @@ class Sistema {
   buscarUsuarioObjeto(pNombreUsuario) {
     let i = 0;
 
-    //let usuarioEncontrado = null;
-    // while(i < this.arrayUsuariosComunes && usuarioEncontrado === null)
     while (i < this.arrayUsuariosComunes.length) {
       let unUsuario = this.arrayUsuariosComunes[i];
       if (unUsuario.nombreUsuario === pNombreUsuario) {
         return unUsuario;
-        //usuarioEncontrado = unUsuario;
       }
       i++;
     }
 
-    //return usuarioEncontrado;
     return null;
   }
 
@@ -274,6 +270,10 @@ class Sistema {
    * @param {number} cantidadAgregar
    */
   agregarInstancias(pTipo, cantidadAgregar) {
+    if (!esNumeroEnteroValido(cantidadAgregar)) {
+      return;
+    }
+
     for (let i = 0; i < cantidadAgregar; i++) {
       this.agregarInstancia(pTipo);
     }
@@ -316,6 +316,10 @@ class Sistema {
     return libres;
   }
 
+  /**
+   * @param {INSTANCIA_TIPO} tipo
+   * @returns {MaquinaVirtual[]}
+   */
   buscarInstanciasPorTipo(tipo) {
     let instancias = [];
 
@@ -335,32 +339,32 @@ class Sistema {
    * @param {number} cantidadAReducir Cantidad de instancias a sacar de las `libres`.
    */
   reducirStockDisponible(tipo, cantidadAReducir) {
-    let libres = this.buscarInstanciasLibresPorTipo(tipo);
-
-    if (esNumeroEnteroValido(cantidadAReducir)) {
-      const instanciasAEliminar = libres.splice(0, cantidadAReducir);
-
-      // buscar el indice de esta instancia en el arreglo original
-      for (let i = 0; i < instanciasAEliminar.length; i++) {
-        const instanciaLibre = instanciasAEliminar[i];
-
-        for (let j = 0; j < this.arrayInstancias.length; j++) {
-          const instancia = this.arrayInstancias[j];
-
-          if (instanciaLibre.ID === instancia.ID) {
-            this.arrayInstancias.splice(j, 1);
-          }
-        }
-      }
-
-      console.log(
-        `Se eliminaron ${instanciasAEliminar.length} instancias del tipo ${tipo}.`
-      );
-
-      return true;
+    if (!esNumeroEnteroValido(cantidadAReducir)) {
+      return false;
     }
 
-    return false;
+    let libres = this.buscarInstanciasLibresPorTipo(tipo);
+
+    const instanciasAEliminar = libres.splice(0, cantidadAReducir);
+
+    // buscar el indice de esta instancia en el arreglo original
+    for (let i = 0; i < instanciasAEliminar.length; i++) {
+      const instanciaLibre = instanciasAEliminar[i];
+
+      for (let j = 0; j < this.arrayInstancias.length; j++) {
+        const instancia = this.arrayInstancias[j];
+
+        if (instanciaLibre.ID === instancia.ID) {
+          this.arrayInstancias.splice(j, 1);
+        }
+      }
+    }
+
+    console.log(
+      `Se eliminaron ${instanciasAEliminar.length} instancias del tipo ${tipo}.`
+    );
+
+    return true;
   }
 
   /**
@@ -409,17 +413,21 @@ class Sistema {
   /**
    *
    * @param {INSTANCIA_TIPO} tipoInstancia
-   * @param {number} idUsuario
+   * @param {string} nomUsuario
    * @returns {boolean}
    */
-  alquilarInstancia(tipoInstancia, idUsuario) {
+  alquilarInstancia(tipoInstancia, nomUsuario) {
+    if (!this.buscarUsuarioObjeto(nomUsuario)) {
+      return false;
+    }
+
     let instancias = this.buscarInstanciasLibresPorTipo(tipoInstancia);
 
     if (instancias.length === 0) {
       return false;
     }
 
-    let alquilada = new InstanciaAlquilada(instancias[0].ID, idUsuario);
+    let alquilada = new InstanciaAlquilada(instancias[0].ID, nomUsuario);
     this.arrayAlquileres.push(alquilada);
 
     return true;
@@ -486,7 +494,13 @@ class Sistema {
     this.agregarInstancias("i7medium", 3);
     this.agregarInstancias("i7large", 2);
 
-    this.alquilarInstancia("c7small", this.arrayUsuariosComunes[0].ID);
-    this.alquilarInstancia("c7small", this.arrayUsuariosComunes[1].ID);
+    this.alquilarInstancia(
+      "c7small",
+      this.arrayUsuariosComunes[0].nombreUsuario
+    );
+    this.alquilarInstancia(
+      "c7small",
+      this.arrayUsuariosComunes[1].nombreUsuario
+    );
   }
 }
