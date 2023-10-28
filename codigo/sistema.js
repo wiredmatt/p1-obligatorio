@@ -337,7 +337,7 @@ class Sistema {
   reducirStockDisponible(tipo, cantidadAReducir) {
     let libres = this.buscarInstanciasLibresPorTipo(tipo);
 
-    if (cantidadAReducir > 0) {
+    if (esNumeroEnteroValido(cantidadAReducir)) {
       const instanciasAEliminar = libres.splice(0, cantidadAReducir);
 
       // buscar el indice de esta instancia en el arreglo original
