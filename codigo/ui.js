@@ -510,6 +510,9 @@ function verMisInstanciasUsuario() {
                 <table>
                   <tr>
                       <th>
+                        ID
+                      </th>
+                      <th>
                         Tipo
                       </th>
                       <th>
@@ -559,6 +562,7 @@ function verMisInstanciasUsuario() {
 
     tabla += `
                 <tr>
+                    <td>INSTANCE_ID_${instancia.ID}</td>
                     <td>${formatearTipoUI(instancia.tipo)}</td>
                     <td>${instancia.estado}</td>
                     <td>${instancia.contadorEncendido} ${textoVeces}</td>
