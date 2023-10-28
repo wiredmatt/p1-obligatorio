@@ -61,6 +61,14 @@ function iniciarSesionUI(u, c) {
   if (sistema.validarLogin(nomUsuario, contrasena)) {
     let esAdmin = sistema.esAdmin(nomUsuario);
 
+    let activo = sistema.usuarioEstaActivo(nomUsuario) || esAdmin;
+
+    if (!activo) {
+      imprimirEnHtml("pMensajesLogin", "Registro pendiente de aprobacion");
+
+      return;
+    }
+
     if (esAdmin) {
       document.querySelector("#divContenidoAdministrador").style.display =
         "block";
@@ -160,7 +168,9 @@ function validarDatosRegistroUsuario(
     arrayErrores.push("Debe ingresar nombre de usuario.");
   }
   if (!hayCaracteres(pContrasena) || !sistema.validarContrasena(pContrasena)) {
-    arrayErrores.push("Debe ingresar contrasenia.");
+    arrayErrores.push(
+      "Debe ingresar una contraseña válida. Mínimo de 5 caracteres, contando con al menos una mayúscula, una minúscula y un número."
+    );
   }
   if (!hayCaracteres(pNroTjt) || !sistema.validarTarjeta(pNroTjt)) {
     arrayErrores.push("Tarjeta invalida.");

@@ -10,7 +10,7 @@ function tryMock() {
     /**
      * ADMIN LOGIN
      */
-    iniciarSesionUI("mateo", "1234"); // mateo es admin.
+    iniciarSesionUI("mateo", "1234La"); // mateo es admin.
 
     /**
      * USER LOGIN
