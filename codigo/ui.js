@@ -34,15 +34,10 @@ function inicio() {
     .querySelector("#aGestionarInstancias")
     .addEventListener("click", verListadoDeInstancias);
 
-  // document
-  //   .querySelector("#slcTipoCrear")
-  //   .addEventListener("change", refrescarDatosInstanciaCrear);
-
   // La pantalla por defecto es el login - no landing page (bajo presupuesto).
   mostrarPantallaLogin();
 
-  // forzar login mientras testeamos
-  iniciarSesionUI("mateo", "1234");
+  mock(); // forzar login, moverse a pagina especifica, etc. Solo habilitada en desarrollo.
 }
 
 function mostrarPantallaLogin() {

@@ -83,9 +83,9 @@ class Sistema {
     }
 
     let usuario = this.buscarUsuarioObjeto(pNomUsu);
+    let admin = this.buscarAdminObjeto(pNomUsu);
 
-    if (usuario === null) {
-      // let usuarioNuevo
+    if (usuario === null && admin === null) {
       usuario = new UsuarioComun(
         pNombre,
         pApellido,
@@ -147,6 +147,20 @@ class Sistema {
 
     while (i < this.arrayUsuariosComunes.length) {
       let unUsuario = this.arrayUsuariosComunes[i];
+      if (unUsuario.nombreUsuario === pNombreUsuario) {
+        return unUsuario;
+      }
+      i++;
+    }
+
+    return null;
+  }
+
+  buscarAdminObjeto(pNombreUsuario) {
+    let i = 0;
+
+    while (i < this.arrayUsuariosAdmin.length) {
+      let unUsuario = this.arrayUsuariosAdmin[i];
       if (unUsuario.nombreUsuario === pNombreUsuario) {
         return unUsuario;
       }
@@ -465,22 +479,6 @@ class Sistema {
       "4539-6253-0847-8250",
       "323"
     );
-    this.registrarUsuario(
-      "Juan",
-      "Perez",
-      "j.perez",
-      "1234",
-      "4539-623-0847-8250",
-      "323"
-    );
-    this.registrarUsuario(
-      "Fulano",
-      "Sultan",
-      "f.sultan",
-      "1234",
-      "4539-6253-0847-8250",
-      "323"
-    );
 
     // precarga de instancias
     this.agregarInstancias("c7small", 8);
@@ -493,14 +491,5 @@ class Sistema {
 
     this.agregarInstancias("i7medium", 3);
     this.agregarInstancias("i7large", 2);
-
-    this.alquilarInstancia(
-      "c7small",
-      this.arrayUsuariosComunes[0].nombreUsuario
-    );
-    this.alquilarInstancia(
-      "c7small",
-      this.arrayUsuariosComunes[1].nombreUsuario
-    );
   }
 }
