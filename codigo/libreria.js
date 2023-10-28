@@ -57,6 +57,10 @@ function imprimirEnHtml(pIdElemento, pLoQueImprimo) {
   document.querySelector(`#${pIdElemento}`).innerHTML = pLoQueImprimo;
 }
 
+/**
+ * Muestra todos los elementos de navegación que tengan la clase `nav-item-admin`
+ * @param {string} pIdElemento
+ */
 function mostrarNavAdmin() {
   let elementos = document.querySelectorAll(".nav-item-admin");
 
@@ -65,6 +69,10 @@ function mostrarNavAdmin() {
   }
 }
 
+/**
+ * Oculta todos los elementos de navegación que tengan la clase `nav-item-admin`
+ * @param {string} pIdElemento
+ */
 function ocultarNavAdmin() {
   let elementos = document.querySelectorAll(".nav-item-admin");
 
@@ -73,26 +81,103 @@ function ocultarNavAdmin() {
   }
 }
 
+/**
+ * Dada una id de un elemento, lo muestra.
+ * @param {string} pIdElemento
+ */
 function mostrarElemento(pIdElemento) {
   document.querySelector(`#${pIdElemento}`).style.display = "block";
 }
 
+/**
+ * Dada una id de un elemento, lo oculta.
+ * @param {string} pIdElemento
+ */
 function ocultarElemento(pIdElemento) {
   document.querySelector(`#${pIdElemento}`).style.display = "none";
 }
 
 /**
+ * Retorna el prefijo según la categoria.
+ *
+ * Ejemplo: "Optimizadas para computo" -> "c7", tal que todas las instancias de dicha categoria empiezan con "c7".
+ *
  * @param {INSTANCIA_CATEGORIA} categoria
- * @returns {("c" | "r" | "i")}
+ * @returns {("c7" | "r7" | "i7")}
  */
 function prefijoSegunCategoria(categoria) {
   switch (categoria) {
     case "Optimizadas para computo":
-      return "c";
+      return "c7";
     case "Optimizadas para memoria":
-      return "r";
+      return "r7";
     case "Optimizadas para almacenamiento":
-      return "i";
+      return "i7";
+  }
+}
+
+/**
+ * @param {INSTANCIA_TIPO} tipo
+ * @returns {INSTANCIA_CATEGORIA}
+ */
+function tipoACategoria(tipo) {
+  switch (tipo.charAt(0)) {
+    case "c":
+      return "Optimizadas para computo";
+    case "r":
+      return "Optimizadas para memoria";
+    case "i":
+      return "Optimizadas para almacenamiento";
+  }
+}
+
+/**
+ * @param {INSTANCIA_TIPO} tipo
+ * @returns {number}
+ */
+function tipoACostoAlquiler(tipo) {
+  switch (tipo) {
+    case "c7small":
+      return 20;
+    case "c7medium":
+      return 30;
+    case "c7large":
+      return 50;
+    case "r7small":
+      return 35;
+    case "r7medium":
+      return 50;
+    case "r7large":
+      return 60;
+    case "i7medium":
+      return 30;
+    case "i7large":
+      return 50;
+  }
+}
+
+/**
+ * @param {INSTANCIA_TIPO} tipo
+ * @returns {number}
+ */
+function tipoACostoEncendido(tipo) {
+  switch (tipo) {
+    case "c7small":
+      return 2.5;
+    case "c7medium":
+      return 3.5;
+    case "c7large":
+      return 6.0;
+    case "r7small":
+      return 4.0;
+    case "r7medium":
+      return 6.5;
+    case "r7large":
+      return 7.0;
+    case "i7medium":
+      return 3.5;
+    case "i7large":
+      return 6.5;
   }
 }
 
@@ -108,7 +193,8 @@ let arrTipoInstancias = [
 ];
 
 /**
- *
+ * Recibe un tipo de instancia y lo devuelve formateado para mostrar en la interfaz de usuario.
+ * Ejemplo: "c7small" -> "c7.small"
  * @param {INSTANCIA_TIPO} tipo
  */
 function formatearTipoUI(tipo) {
@@ -119,6 +205,13 @@ function formatearTipoUI(tipo) {
 }
 
 /**
+ * Verifica si un `valor` es un numero entero positivo.
+ *
+ * Ejemplo: "123" -> `true`
+ *
+ * Ejemplo: "123.5" -> `false`
+ *
+ * Ejemplo: "-123" -> `false`
  * @param {number|string} valor
  * @returns {boolean}
  */

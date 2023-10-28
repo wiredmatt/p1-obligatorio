@@ -76,71 +76,6 @@ class MaquinaVirtual {
   static contadorID = 1;
 
   /**
-   * @param {INSTANCIA_TIPO} tipo
-   * @returns {INSTANCIA_CATEGORIA}
-   */
-  static tipoACategoria(tipo) {
-    switch (tipo.charAt(0)) {
-      case "c":
-        return "Optimizadas para computo";
-      case "r":
-        return "Optimizadas para memoria";
-      case "i":
-        return "Optimizadas para almacenamiento";
-    }
-  }
-
-  /**
-   * @param {INSTANCIA_TIPO} tipo
-   * @returns {number}
-   */
-  static tipoACostoAlquiler(tipo) {
-    switch (tipo) {
-      case "c7small":
-        return 20;
-      case "c7medium":
-        return 30;
-      case "c7large":
-        return 50;
-      case "r7small":
-        return 35;
-      case "r7medium":
-        return 50;
-      case "r7large":
-        return 60;
-      case "i7medium":
-        return 30;
-      case "i7large":
-        return 50;
-    }
-  }
-
-  /**
-   * @param {INSTANCIA_TIPO} tipo
-   * @returns {number}
-   */
-  static tipoACostoEncendido(tipo) {
-    switch (tipo) {
-      case "c7small":
-        return 2.5;
-      case "c7medium":
-        return 3.5;
-      case "c7large":
-        return 6.0;
-      case "r7small":
-        return 4.0;
-      case "r7medium":
-        return 6.5;
-      case "r7large":
-        return 7.0;
-      case "i7medium":
-        return 3.5;
-      case "i7large":
-        return 6.5;
-    }
-  }
-
-  /**
    * @param {INSTANCIA_TIPO} pTipo
    */
   constructor(pTipo) {
@@ -157,45 +92,56 @@ class MaquinaVirtual {
     /**
      * @type {INSTANCIA_CATEGORIA}
      */
-    this.categoria = MaquinaVirtual.tipoACategoria(pTipo);
+    this.categoria = tipoACategoria(pTipo);
 
     /**
      * @type {number}
      */
-    this.costoAlquiler = MaquinaVirtual.tipoACostoAlquiler(pTipo);
+    this.costoAlquiler = tipoACostoAlquiler(pTipo);
 
     /**
      * @type {number}
      */
-    this.costoEncendido = MaquinaVirtual.tipoACostoEncendido(pTipo);
+    this.costoEncendido = tipoACostoEncendido(pTipo);
 
     /**
-     * @type {("apagada" | "encendida")}
+     * @type {("APAGADA" | "ENCENDIDA")}
      */
-    this.estado = "apagada";
+    this.estado = "APAGADA";
+
+    /**
+     * @type {number}
+     */
     this.contadorEncendido = 0;
+
+    /**
+     * @type {number}
+     */
     this.costoAcumulado = 0;
 
     MaquinaVirtual.contadorID++;
   }
 
   /**
-   * @returns {boolean} false si la maquina ya estaba prendida, true si estaba apagada.
+   * @returns {boolean} `false` si la maquina ya estaba prendida, `true` si estaba APAGADA.
    */
   encender() {
-    if (this.estado !== "apagada") {
+    if (this.estado !== "APAGADA") {
       return false;
     }
 
-    this.estado = "encendida";
+    this.estado = "ENCENDIDA";
     this.contadorEncendido = this.contadorEncendido + 1;
     this.recalcularCostoAcumulado();
 
     return true;
   }
 
+  /**
+   * Apaga la maquina virtual.
+   */
   apagar() {
-    this.estado = "apagada";
+    this.estado = "APAGADA";
   }
 
   /**
@@ -207,7 +153,10 @@ class MaquinaVirtual {
   }
 }
 
-class InstanciaAlquilada {
+/**
+ * Un `Alquiler` se da entre un `UsuarioComun` y una `MaquinaVirtual`.
+ */
+class Alquiler {
   /**
    * @param {number} instancia
    * @param {string} nomUsuario
