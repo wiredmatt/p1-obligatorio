@@ -142,7 +142,6 @@ class Sistema {
     pNroTjt,
     pCvcTjt
   ) {
-    //let esValido = true;
     if (
       !hayCaracteres(pNombre) ||
       !hayCaracteres(pApellido) ||
@@ -153,10 +152,41 @@ class Sistema {
       pCvcTjt.length !== 3 ||
       isNaN(pCvcTjt) ||
       !this.validarContrasena(pContrasena) ||
-      !this.validarTarjeta(pNroTjt)
+      !this.validarTarjeta(pNroTjt) ||
+      !this.validarNombreUsuario(pNomUsu)
     ) {
       return false;
     }
+    return true;
+  }
+
+  /**
+   * Formato string alfanumérico, case insensitive.
+   *
+   * Acepta "." y "_" como caracteres especiales.
+   *
+   * A modo de ejemplo: martin.luz01.
+   *
+   * @param {string} pNomUsu
+   * @returns {boolean}
+   */
+  validarNombreUsuario(pNomUsu) {
+    pNomUsu = pNomUsu.toLowerCase();
+
+    for (let i = 0; i < pNomUsu.length; i++) {
+      let char = pNomUsu.charAt(i);
+
+      let esCharEspecial = char === "." || char === "_";
+      let esNumerico = !isNaN(char) && char !== " "; // Number(" ") retorna 0.
+      let esLetra = char >= "a" && char <= "z";
+
+      let esValido = esCharEspecial || esNumerico || esLetra;
+
+      if (!esValido) {
+        return false;
+      }
+    }
+
     return true;
   }
 
@@ -512,7 +542,7 @@ class Sistema {
   }
 
   /**
-   *
+   * Le asigna una instancia del tipo provisto al usuario dado en alquiler, si este está habilitado Y si hay instancias disponibles.
    * @param {INSTANCIA_TIPO} tipoInstancia
    * @param {string} nomUsuario
    * @returns {boolean}
@@ -534,18 +564,115 @@ class Sistema {
     return true;
   }
 
+  /**
+   * Consigue todas las instancias alquiladas por el usuario dado.
+   * @param {string} nomUsuario
+   * @returns {MaquinaVirtual[]}
+   */
+  buscarInstanciasDeUsuario(nomUsuario) {
+    /**
+     * @type {MaquinaVirtual[]}
+     */
+    let arr = [];
+
+    for (let i = 0; i < this.arrayAlquileres.length; i++) {
+      let alquilada = this.arrayAlquileres[i];
+
+      if (alquilada.nomUsuario === nomUsuario) {
+        let instancia = this.buscarInstanciaPorID(alquilada.idInstancia);
+
+        if (instancia !== null) {
+          arr.push(instancia);
+        }
+      }
+    }
+
+    return arr;
+  }
+
+  /**
+   * Busca una maquina virtual por su ID.
+   * @param {number} id
+   * @returns {?MaquinaVirtual}
+   */
+  buscarInstanciaPorID(id) {
+    for (let i = 0; i < this.arrayInstancias.length; i++) {
+      let instancia = this.arrayInstancias[i];
+
+      if (instancia.ID === id) {
+        return instancia;
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Intenta prender una maquina virtual por su ID.
+   * @param {number} id
+   * @returns {boolean}
+   */
+  encenderInstancia(id) {
+    if (!esNumeroEnteroValido(id)) {
+      return false;
+    }
+
+    let instancia = this.buscarInstanciaPorID(id);
+
+    if (instancia === null) {
+      return false;
+    }
+
+    if (instancia.estado === "ENCENDIDA") {
+      return false;
+    }
+
+    instancia.estado = "ENCENDIDA";
+    instancia.contadorEncendido++;
+
+    return true;
+  }
+
+  /**
+   * Intenta apagar una maquina virtual por su ID.
+   * @param {number} id
+   * @returns {boolean}
+   */
+  apagarInstancia(id) {
+    let instancia = this.buscarInstanciaPorID(id);
+
+    if (instancia === null) {
+      return false;
+    }
+
+    instancia.estado = "APAGADA";
+
+    return true;
+  }
+
   precargaDeDatos() {
     // precarga de usuarios administradores
     let admin1 = new UsuarioAdministrador("gaston", "1234La");
     let admin2 = new UsuarioAdministrador("mateo", "1234La");
     let admin3 = new UsuarioAdministrador("matt1", "1234La");
-    this.arrayUsuariosAdmin.push(admin1, admin2, admin3);
+    let admin4 = new UsuarioAdministrador("lean1", "1234La");
+    let admin5 = new UsuarioAdministrador("admin", "1234La");
+
+    this.arrayUsuariosAdmin.push(admin1, admin2, admin3, admin4, admin5);
 
     // precarga de usuarios comunes
     this.registrarUsuario(
       "mateo",
       "carriqui",
-      "matt",
+      "matteo",
+      "1234La",
+      "4539-6253-0847-8250",
+      "323"
+    );
+    this.registrarUsuario(
+      "leandro",
+      "guzman",
+      "lean.g",
       "1234La",
       "4539-6253-0847-8250",
       "323"
@@ -566,6 +693,14 @@ class Sistema {
       "4539-6253-0847-8250",
       "323"
     );
+    this.registrarUsuario(
+      "Soy",
+      "Yo",
+      "soy.yo",
+      "1234La",
+      "4539-6253-0847-8250",
+      "323"
+    );
 
     // precarga de instancias
     this.agregarInstancias("c7small", 8);
@@ -578,5 +713,27 @@ class Sistema {
 
     this.agregarInstancias("i7medium", 3);
     this.agregarInstancias("i7large", 2);
+
+    for (let i = 0; i < this.arrayUsuariosComunes.length; i++) {
+      this.activarUsuario(this.arrayUsuariosComunes[i].nombreUsuario);
+    }
+
+    /**
+     * ALQUILARLE MAQUINAS A USUARIOS
+     */
+    this.alquilarInstancia(
+      "c7small",
+      this.arrayUsuariosComunes[0].nombreUsuario
+    );
+
+    this.alquilarInstancia(
+      "r7small",
+      this.arrayUsuariosComunes[0].nombreUsuario
+    );
+
+    this.alquilarInstancia(
+      "c7small",
+      this.arrayUsuariosComunes[1].nombreUsuario
+    );
   }
 }

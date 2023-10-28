@@ -17,6 +17,7 @@
           alt="logo"
         />
         <ul id="navPrincipal">
+          <!-- ADMIN NAV -->
           <li>
             <a id="aGestionarInstancias" class="nav-item-admin"
               >Gestionar Instancias</a
@@ -30,6 +31,20 @@
           <li>
             <a id="aReportes" class="nav-item-admin">Reportes</a>
           </li>
+          <!-- FIN ADMIN NAV -->
+
+          <!-- USER NAV -->
+          <li>
+            <a id="aMisInstancias" class="nav-item-usuario"
+              >Gestionar Instancias</a
+            >
+          </li>
+          <li>
+            <a id="aMisGastos" class="nav-item-usuario">Ver Gastos</a>
+          </li>
+          <!-- FIN USER NAV -->
+
+          <!-- COMPARTIDO -->
           <li>
             <a id="aCerrarSesion">Cerrar Sesión</a>
           </li>
@@ -67,9 +82,13 @@
           <p id="pInfoRegistroUsuario"></p>
         </div>
 
-        <div id="divContenidoAdministrador">
+        <div id="divContenidoAdministrador" style="display: none">
           <div id="divAdminStockInstancias"></div>
           <div id="divAdminAdministrarUsuario"></div>
+        </div>
+        <div id="divContenidoUsuario" style="display: none">
+          <div id="divUsuarioMisInstancias"></div>
+          <div id="divUsuarioMisGastos"></div>
         </div>
       </div>
       <div id="footer">

@@ -57,10 +57,6 @@ function imprimirEnHtml(pIdElemento, pLoQueImprimo) {
   document.querySelector(`#${pIdElemento}`).innerHTML = pLoQueImprimo;
 }
 
-/**
- * Muestra todos los elementos de navegación que tengan la clase `nav-item-admin`
- * @param {string} pIdElemento
- */
 function mostrarNavAdmin() {
   let elementos = document.querySelectorAll(".nav-item-admin");
 
@@ -69,12 +65,24 @@ function mostrarNavAdmin() {
   }
 }
 
-/**
- * Oculta todos los elementos de navegación que tengan la clase `nav-item-admin`
- * @param {string} pIdElemento
- */
 function ocultarNavAdmin() {
   let elementos = document.querySelectorAll(".nav-item-admin");
+
+  for (let i = 0; i < elementos.length; i++) {
+    elementos[i].style.display = "none";
+  }
+}
+
+function mostrarNavUsuario() {
+  let elementos = document.querySelectorAll(".nav-item-usuario");
+
+  for (let i = 0; i < elementos.length; i++) {
+    elementos[i].style.display = "block";
+  }
+}
+
+function ocultarNavUsuario() {
+  let elementos = document.querySelectorAll(".nav-item-usuario");
 
   for (let i = 0; i < elementos.length; i++) {
     elementos[i].style.display = "none";
@@ -217,6 +225,9 @@ function formatearTipoUI(tipo) {
  */
 function esNumeroEnteroValido(valor) {
   return (
-    !isNaN(valor) && String(valor).indexOf(".") === -1 && Number(valor) >= 0
+    !isNaN(valor) &&
+    String(valor).indexOf(".") === -1 &&
+    Number(valor) >= 0 &&
+    valor !== " "
   );
 }

@@ -10,28 +10,12 @@ function tryMock() {
     /**
      * ADMIN LOGIN
      */
-    iniciarSesionUI("mateo", "1234La"); // mateo es admin.
+    // iniciarSesionUI("mateo", "1234La"); // mateo es admin.
+    // verListadoDeInstanciasAdmin();
 
     /**
      * USER LOGIN
      */
-    // iniciarSesionUI("matt", "1234"); // matt es usuario.
-
-    sistema.activarUsuario(sistema.arrayUsuariosComunes[0].nombreUsuario);
-    sistema.activarUsuario(sistema.arrayUsuariosComunes[1].nombreUsuario);
-
-    /**
-     * ALQUILARLE MAQUINAS A USUARIOS
-     */
-    sistema.alquilarInstancia(
-      "c7small",
-      sistema.arrayUsuariosComunes[0].nombreUsuario
-    );
-    sistema.alquilarInstancia(
-      "c7small",
-      sistema.arrayUsuariosComunes[1].nombreUsuario
-    );
-
-    verListadoDeInstancias();
+    iniciarSesionUI("matteo", "1234La"); // matteo es usuario.
   }
 }
