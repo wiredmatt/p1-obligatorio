@@ -407,12 +407,14 @@ function guardarCambioStockTipo() {
   let tipo = this.getAttribute("tipo-instancia");
 
   let valorActual = sistema.buscarInstanciasLibresPorTipo(tipo).length;
-  let valorNuevo = document.querySelector(`#numStockModificar${tipo}`).value;
+  let valorNuevo = Number(
+    document.querySelector(`#numStockModificar${tipo}`).value
+  );
 
   if (valorNuevo > valorActual) {
     let cantidadAgregar = valorNuevo - valorActual;
     sistema.agregarInstancias(tipo, cantidadAgregar);
-  } else if (valorNuevo < valorActual) {
+  } else if (valorNuevo < valorActual && valorNuevo >= 0) {
     let cantidadAReducir = valorActual - valorNuevo;
     sistema.reducirStockDisponible(tipo, cantidadAReducir);
   }
