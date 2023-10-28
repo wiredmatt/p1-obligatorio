@@ -1,5 +1,5 @@
 /**
- * @typedef {("c7.small" | "c7.medium" | "c7.large" | "r7.small" | "r7.medium" | "r7.large" | "i7.medium" | "i7.large")} INSTANCIA_TIPO
+ * @typedef {("c7small" | "c7medium" | "c7large" | "r7small" | "r7medium" | "r7large" | "i7medium" | "i7large")} INSTANCIA_TIPO
  * @typedef {("small" | "medium" | "large" } INSTANCIA_TAMANIO
  *
  * @typedef {("Optimizadas para computo" | "Optimizadas para memoria" | "Optimizadas para almacenamiento")} INSTANCIA_CATEGORIA
@@ -96,21 +96,21 @@ class MaquinaVirtual {
    */
   static tipoACostoAlquiler(tipo) {
     switch (tipo) {
-      case "c7.small":
+      case "c7small":
         return 20;
-      case "c7.medium":
+      case "c7medium":
         return 30;
-      case "c7.large":
+      case "c7large":
         return 50;
-      case "r7.small":
+      case "r7small":
         return 35;
-      case "r7.medium":
+      case "r7medium":
         return 50;
-      case "r7.large":
+      case "r7large":
         return 60;
-      case "i7.medium":
+      case "i7medium":
         return 30;
-      case "i7.large":
+      case "i7large":
         return 50;
     }
   }
@@ -121,21 +121,21 @@ class MaquinaVirtual {
    */
   static tipoACostoEncendido(tipo) {
     switch (tipo) {
-      case "c7.small":
+      case "c7small":
         return 2.5;
-      case "c7.medium":
+      case "c7medium":
         return 3.5;
-      case "c7.large":
+      case "c7large":
         return 6.0;
-      case "r7.small":
+      case "r7small":
         return 4.0;
-      case "r7.medium":
+      case "r7medium":
         return 6.5;
-      case "r7.large":
+      case "r7large":
         return 7.0;
-      case "i7.medium":
+      case "i7medium":
         return 3.5;
-      case "i7.large":
+      case "i7large":
         return 6.5;
     }
   }
@@ -152,7 +152,7 @@ class MaquinaVirtual {
     /**
      * @type {number}
      */
-    this.id = MaquinaVirtual.contadorID;
+    this.ID = MaquinaVirtual.contadorID;
 
     /**
      * @type {INSTANCIA_CATEGORIA}
@@ -204,5 +204,23 @@ class MaquinaVirtual {
   recalcularCostoAcumulado() {
     this.costoAcumulado =
       this.costoAlquiler + (this.costoEncendido - 1) * this.costoEncendido;
+  }
+}
+
+class InstanciaAlquilada {
+  /**
+   * @param {number} instancia
+   * @param {number} usuario
+   */
+  constructor(idInstancia, idUsuario) {
+    /**
+     * @type {number}
+     */
+    this.idInstancia = idInstancia;
+
+    /**
+     * @type {number}
+     */
+    this.idUsuario = idUsuario;
   }
 }

@@ -95,3 +95,25 @@ function prefijoSegunCategoria(categoria) {
       return "i";
   }
 }
+
+let arrTipoInstancias = [
+  "c7small",
+  "c7medium",
+  "c7large",
+  "r7small",
+  "r7medium",
+  "r7large",
+  "i7medium",
+  "i7large",
+];
+
+/**
+ *
+ * @param {INSTANCIA_TIPO} tipo
+ */
+function formatearTipoUI(tipo) {
+  let pre = tipo.substring(0, 2);
+  let post = tipo.substring(2, tipo.length);
+
+  return pre + "." + post;
+}

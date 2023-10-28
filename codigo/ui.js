@@ -312,6 +312,14 @@ function verListadoDeInstancias() {
 
   imprimirEnHtml("divAdminStockInstancias", htmlFinal);
   mostrarElemento("divAdminStockInstancias");
+
+  for (let i = 0; i < arrTipoInstancias.length; i++) {
+    let tipo = arrTipoInstancias[i];
+
+    document
+      .querySelector(`#btnStockGuardar${tipo}`)
+      .addEventListener("click", guardarCambioStockTipo);
+  }
 }
 
 /**
@@ -348,11 +356,11 @@ function generarTablaParaCategoriaInstancia(categoria) {
 
   // i = almacenamiento no tiene smalls.
   if (prefijo !== "i") {
-    tabla += generarFilaParaTipoInstancia(prefijo + "7.small", smalls.length);
+    tabla += generarFilaParaTipoInstancia(prefijo + "7small", smalls.length);
   }
 
-  tabla += generarFilaParaTipoInstancia(prefijo + "7.medium", mediums.length);
-  tabla += generarFilaParaTipoInstancia(prefijo + "7.large", larges.length);
+  tabla += generarFilaParaTipoInstancia(prefijo + "7medium", mediums.length);
+  tabla += generarFilaParaTipoInstancia(prefijo + "7large", larges.length);
 
   tabla += "</table>";
 
@@ -362,20 +370,20 @@ function generarTablaParaCategoriaInstancia(categoria) {
 function generarFilaParaTipoInstancia(tipo, stock) {
   return `
   <tr>
-    <td>${tipo}</ts>
+    <td>${formatearTipoUI(tipo)}</ts>
     <td>${stock}</td>
     <td>
       <input
           type="number"
           min="0"
           id="numStockModificar${tipo}"
-          value="0"
+          value="${stock}"
         />
     </td>
     <td>
       <input
         type="button"
-        id="btnStock${tipo}"
+        id="btnStockGuardar${tipo}"
         tipo-instancia="${tipo}"
         value="Guardar"
       />
@@ -384,50 +392,32 @@ function generarFilaParaTipoInstancia(tipo, stock) {
   `;
 }
 
-// function refrescarDatosInstanciaCrear() {
-//   let tipoSeleccionado = obtenerValorDeUnElementoHTML("slcTipoCrear");
+function guardarCambioStockTipo() {
+  let tipo = this.getAttribute("tipo-instancia");
 
-//   let costoAlq = MaquinaVirtual.tipoACostoAlquiler(tipoSeleccionado);
-//   let costoEnc = MaquinaVirtual.tipoACostoEncendido(tipoSeleccionado);
-//   let id = MaquinaVirtual.contadorID;
+  let valorActual = sistema.buscarInstanciasPorTipo(tipo).length;
+  let valorNuevo = document.querySelector(`#numStockModificar${tipo}`).value;
 
-//   document.querySelector("#txtIDInstancia").value = id;
-//   document.querySelector("#txtCostoAlquiler").value = costoAlq;
-//   document.querySelector("#txtCostoEncendido").value = costoEnc;
-// }
-// <!-- <div id="divAdminCrearInstancia">
-// <h1>Crear una nueva instancia</h1>
-// <h2>Ingrese los datos</h2>
-// <label for="slcTipoCrear">Seleccione Tipo</label>
-// <select id="slcTipoCrear" style="width: 68%">
-//   <optgroup label="Optimizadas para Cómputo">
-//     <option value="c7.small">c7.small</option>
-//     <option value="c7.medium">c7.medium</option>
-//     <option value="c7.large">c7.large</option>
-//   </optgroup>
-//   <optgroup label="Optimizadas para Memoria">
-//     <option value="r7.small">r7.small</option>
-//     <option value="r7.medium">r7.medium</option>
-//     <option value="r7.large">r7.large</option>
-//   </optgroup>
-//   <optgroup label="Optimizadas para Almacenamiento">
-//     <option value="i7.medium">i7.medium</option>
-//     <option value="i7.large">i7.large</option>
-//   </optgroup>
-// </select>
+  if (valorNuevo > valorActual) {
+    let cantidadAgregar = valorNuevo - valorActual;
 
-// <label for="txtIDInstancia">ID</label>
-// <input id="txtIDInstancia" type="text" disabled value="1" />
+    for (let i = 0; i < cantidadAgregar; i++) {
+      sistema.agregarInstancia(tipo);
+    }
+  } else {
+    let ok = sistema.reducirStock(tipo, valorNuevo);
 
-// <label for="txtCostoAlquiler">Costo De Alquiler</label>
-// <input id="txtCostoAlquiler" type="text" disabled value="$20" />
+    if (!ok) {
+      let todas = sistema.buscarInstanciasPorTipo(tipo);
+      let libres = sistema.buscarInstanciasLibres(tipo);
 
-// <label for="txtCostoEncendido">Costo de Encendido</label>
-// <input id="txtCostoEncendido" type="text" disabled value="$2.5" />
+      alert(
+        `Error. La cantidad ingresada supera a la efectivamente disponible. El stock se puede reducir hasta ${
+          todas.length - libres.length
+        } unidades.`
+      );
+    }
+  }
 
-// <input
-//   id="btnCrearInstancia"
-//   type="button"
-//   value="Agregar instancia"
-// />
-// </div> -->
+  verListadoDeInstancias();
+}

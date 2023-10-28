@@ -1,17 +1,22 @@
 class Sistema {
   constructor() {
     /**
-     * @type {UsuarioAdministrador}
+     * @type {UsuarioAdministrador[]}
      */
     this.arrayUsuariosAdmin = [];
     /**
-     * @type {UsuarioComun}
+     * @type {UsuarioComun[]}
      */
     this.arrayUsuariosComunes = [];
     /**
-     * @type {MaquinaVirtual}
+     * @type {MaquinaVirtual[]}
      */
     this.arrayInstancias = [];
+
+    /**
+     * @type {InstanciaAlquilada[]}
+     */
+    this.arrayAlquileres = [];
 
     this.precargaDeDatos();
   }
@@ -257,7 +262,14 @@ class Sistema {
   }
 
   /**
-   *
+   * @param {INSTANCIA_TIPO} pTipo
+   */
+  agregarInstancia(pTipo) {
+    let instancia = new MaquinaVirtual(pTipo);
+    this.arrayInstancias.push(instancia);
+  }
+
+  /**
    * @param {INSTANCIA_CATEGORIA} categoria
    * @returns {MaquinaVirtual[]}
    */
@@ -265,9 +277,6 @@ class Sistema {
     let arr = [];
 
     for (let i = 0; i < this.arrayInstancias.length; i++) {
-      /**
-       * @type {MaquinaVirtual}
-       */
       let instancia = this.arrayInstancias[i];
 
       if (instancia.categoria === categoria) {
@@ -276,6 +285,89 @@ class Sistema {
     }
 
     return arr;
+  }
+
+  /**
+   * Conseguir una máquina disponible para dársela en alquiler al usuario que la requiera.
+   * @param {INSTANCIA_TIPO} tipo
+   * @returns {MaquinaVirtual[]}
+   */
+  buscarInstanciasLibresPorTipo(tipo) {
+    let libres = [];
+
+    for (let i = 0; i < this.arrayInstancias.length; i++) {
+      let instancia = this.arrayInstancias[i];
+
+      if (instancia.tipo === tipo && this.maquinaEstaLibre(instancia.ID)) {
+        libres.push(instancia);
+      }
+    }
+
+    return libres;
+  }
+
+  buscarInstanciasPorTipo(tipo) {
+    let instancias = [];
+
+    for (let i = 0; i < this.arrayInstancias.length; i++) {
+      let instancia = this.arrayInstancias[i];
+
+      if (instancia.tipo === tipo) {
+        instancias.push(instancia);
+      }
+    }
+
+    return instancias;
+  }
+
+  /**
+   * Buscará entre las máquinas disponibles (`k`) y verificará si es posible reducir a la cantidad deseada (`v`).
+   *
+   * En caso de que, `k - v < 0` retornará `false`, ya que no se puede reducir a la cantidad deseada sin eliminar de las máquinas que están alquiladas.
+   *
+   * En caso de que `k - v >= 0` retornará `true`.
+   * @param {INSTANCIA_TIPO} tipo
+   * @param {number} aCantidad
+   */
+  reducirStock(tipo, aCantidad) {
+    let libres = this.buscarInstanciasLibresPorTipo(tipo);
+
+    if (libres.length - aCantidad < 0) {
+      return false;
+    }
+
+    libres.splice(0, aCantidad);
+
+    for (let i = 0; i < libres.length; i++) {
+      let instancia = libres[i];
+
+      for (let j = 0; j < this.arrayInstancias.length; j++) {
+        let instanciaEnArray = this.arrayInstancias[j];
+
+        if (instanciaEnArray.ID === instancia.ID) {
+          this.arrayInstancias.splice(j, 1);
+        }
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * Recorre this.arrayAlquileres, si encuentra una maquina con la ID proporcionada, significará que está alquilada actualmente.
+   * @param {number} id
+   * @returns {boolean}
+   */
+  maquinaEstaLibre(id) {
+    for (let i = 0; i < this.arrayAlquileres.length; i++) {
+      let instancia = this.arrayAlquileres[i];
+
+      if (instancia.id === id) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   /**
@@ -300,6 +392,18 @@ class Sistema {
     }
 
     return arr;
+  }
+
+  // alquilarInstancia(idInstancia, idUsuario) {
+  //   let alquilada = new InstanciaAlquilada(idInstancia, idUsuario);
+  //   this.arrayAlquileres.push(alquilada);
+  // }
+
+  alquilarInstancia(tipoInstancia, idUsuario) {
+    let instancia = this.buscar;
+
+    // let alquilada = new InstanciaAlquilada(idInstancia, idUsuario);
+    // this.arrayAlquileres.push(alquilada);
   }
 
   precargaDeDatos() {
@@ -350,5 +454,21 @@ class Sistema {
       "4539-6253-0847-8250",
       "323"
     );
+
+    // precarga de instancias
+    this.agregarInstancia("c7small");
+    this.agregarInstancia("c7small");
+
+    this.agregarInstancia("c7large");
+
+    this.agregarInstancia("r7medium");
+    this.agregarInstancia("r7medium");
+
+    this.agregarInstancia("i7large");
+
+    // this.alquilarInstancia(
+    //   this.arrayInstancias[0].ID,
+    //   this.arrayUsuariosComunes[0].ID
+    // );
   }
 }
