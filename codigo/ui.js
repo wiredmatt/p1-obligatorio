@@ -43,7 +43,6 @@ function inicio() {
 function mostrarPantallaLogin() {
   mostrarElemento("divLogin");
   ocultarElemento("divRegistroUsuario");
-  ocultarElemento("divRegistroUsuario");
   ocultarElemento("divContenidoAdministrador");
   ocultarElemento("cabezal");
 
