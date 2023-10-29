@@ -106,25 +106,6 @@ function ocultarElemento(pIdElemento) {
 }
 
 /**
- * Retorna el prefijo según la categoria.
- *
- * Ejemplo: "Optimizadas para computo" -> "c7", tal que todas las instancias de dicha categoria empiezan con "c7".
- *
- * @param {INSTANCIA_CATEGORIA} categoria
- * @returns {("c7" | "r7" | "i7")}
- */
-function prefijoSegunCategoria(categoria) {
-  switch (categoria) {
-    case "Optimizadas para computo":
-      return "c7";
-    case "Optimizadas para memoria":
-      return "r7";
-    case "Optimizadas para almacenamiento":
-      return "i7";
-  }
-}
-
-/**
  * @param {INSTANCIA_TIPO} tipo
  * @returns {INSTANCIA_CATEGORIA}
  */
