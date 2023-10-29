@@ -580,8 +580,8 @@ function verOpcionesAlquilerUsuario() {
     tabla += `
                 <tr>
                     <td>${formatearTipoUI(tipo)}</td>
-                    <td>${tipoACostoAlquiler(tipo)}</td>
-                    <td>${tipoACostoEncendido(tipo)}</td>
+                    <td>US$ ${tipoACostoAlquiler(tipo)}</td>
+                    <td>US$ ${tipoACostoEncendido(tipo)}</td>
                     <td>${textoDisponible}</td>
                     ${botonAccion}
                 </tr>    
@@ -671,15 +671,21 @@ function verMisInstanciasUsuario() {
                 `;
 
   for (let i = 0; i < misInstancias.length; i++) {
+    let instancia = misInstancias[i];
+
     // si el filtro no es "todas", y el estado de esta instancia no coincide con el filtro, no la mostramos.
     if (
       filtroInstanciasUsuario !== "todas" &&
-      misInstancias[i].estado !== filtroInstanciasUsuario
+      instancia.estado !== filtroInstanciasUsuario
     ) {
       continue;
     }
 
-    let instancia = misInstancias[i];
+    let alquiler = sistema.buscarAlquiler(
+      true,
+      instancia.ID,
+      usuarioLogeado.nombreUsuario
+    );
 
     let textoAccion = "Encender";
     let clase = "encenderInstancia";
@@ -700,7 +706,7 @@ function verMisInstanciasUsuario() {
 
     let textoVeces = "veces";
 
-    if (instancia.contadorEncendido === 1) {
+    if (alquiler.contadorEncendido === 1) {
       textoVeces = "vez";
     }
 
@@ -709,7 +715,7 @@ function verMisInstanciasUsuario() {
                     <td>INSTANCE_ID_${instancia.ID}</td>
                     <td>${formatearTipoUI(instancia.tipo)}</td>
                     <td>${instancia.estado}</td>
-                    <td>${instancia.contadorEncendido} ${textoVeces}</td>
+                    <td>${alquiler.contadorEncendido} ${textoVeces}</td>
                     ${botonAccion}
                 </tr>    
             `;
@@ -848,8 +854,16 @@ function crearFilaCostosUsuario(arrInstancias) {
   let totalEncendidos = 0;
 
   for (let i = 0; i < arrInstancias.length; i++) {
-    costoTotal += arrInstancias[i].costoAcumulado;
-    totalEncendidos += arrInstancias[i].contadorEncendido;
+    let alquiler = sistema.buscarAlquiler(
+      true,
+      arrInstancias[i].ID,
+      usuarioLogeado.nombreUsuario
+    );
+
+    costoTotal +=
+      tipoACostoAlquiler(tipo) +
+      (alquiler.contadorEncendido - 1) * tipoACostoEncendido(tipo);
+    totalEncendidos += alquiler.contadorEncendido;
   }
 
   return `

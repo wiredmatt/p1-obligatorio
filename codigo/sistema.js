@@ -388,10 +388,13 @@ class Sistema {
    */
   liberarInstanciasAlquiladas(pNombreUsuario) {
     for (let i = 0; i < this.arrayAlquileres.length; i++) {
-      let alquilada = this.arrayAlquileres[i];
+      let alquiler = this.arrayAlquileres[i];
 
-      if (alquilada.nomUsuario === pNombreUsuario) {
-        this.arrayAlquileres.splice(i, 1);
+      if (alquiler.nomUsuario === pNombreUsuario) {
+        alquiler.desactivar();
+
+        let instancia = this.buscarInstanciaPorID(alquiler.idInstancia);
+        instancia.apagar();
       }
     }
   }
@@ -440,7 +443,7 @@ class Sistema {
     for (let i = 0; i < this.arrayInstancias.length; i++) {
       let instancia = this.arrayInstancias[i];
 
-      if (instancia.categoria === categoria) {
+      if (tipoACategoria(instancia.tipo) === categoria) {
         instancias.push(instancia);
       }
     }
@@ -533,9 +536,9 @@ class Sistema {
    */
   maquinaEstaLibre(id) {
     for (let i = 0; i < this.arrayAlquileres.length; i++) {
-      let alquilada = this.arrayAlquileres[i];
+      let alquiler = this.arrayAlquileres[i];
 
-      if (alquilada.idInstancia === id) {
+      if (alquiler.idInstancia === id && alquiler.activo) {
         return false;
       }
     }
@@ -560,10 +563,34 @@ class Sistema {
       return false;
     }
 
-    let alquilada = new Alquiler(instancias[0].ID, nomUsuario);
-    this.arrayAlquileres.push(alquilada);
+    let alquiler = new Alquiler(instancias[0].ID, nomUsuario);
+    this.arrayAlquileres.push(alquiler);
+    this.encenderInstancia(instancias[0].ID); // al alquilar una instancia esta se enciende automaticamente, no se cobra primer encendido.
 
     return true;
+  }
+
+  /**
+   * Busca un alquiler por estado, id de instancia y nombre de usuario.
+   *
+   * Ejemplo: sistema.buscarAlquiler(true, 1, "mateo") buscará un alquiler activo de la instancia 1, alquilada por el usuario "mateo".
+   * @param {boolean} activo
+   * @param {number} idInstancia
+   * @param string} nomUsuario
+   * @returns
+   */
+  buscarAlquiler(activo, idInstancia, nomUsuario) {
+    for (let i = 0; i < this.arrayAlquileres.length; i++) {
+      let alquiler = this.arrayAlquileres[i];
+
+      if (alquiler.idInstancia === idInstancia && alquiler.activo === activo) {
+        if (!nomUsuario || alquiler.nomUsuario === nomUsuario) {
+          return alquiler;
+        }
+      }
+    }
+
+    return null;
   }
 
   /**
@@ -578,10 +605,10 @@ class Sistema {
     let arr = [];
 
     for (let i = 0; i < this.arrayAlquileres.length; i++) {
-      let alquilada = this.arrayAlquileres[i];
+      let alquiler = this.arrayAlquileres[i];
 
-      if (alquilada.nomUsuario === nomUsuario) {
-        let instancia = this.buscarInstanciaPorID(alquilada.idInstancia);
+      if (alquiler.nomUsuario === nomUsuario) {
+        let instancia = this.buscarInstanciaPorID(alquiler.idInstancia);
 
         if (instancia !== null) {
           arr.push(instancia);
@@ -619,12 +646,19 @@ class Sistema {
     }
 
     let instancia = this.buscarInstanciaPorID(id);
+    let alquiler = this.buscarAlquiler(true, id); // debe haber un alquiler activo para encender la maquina.
 
-    if (instancia === null) {
+    if (instancia === null || alquiler === null) {
       return false;
     }
 
-    return instancia.encender();
+    let encenderOk = instancia.encender();
+    if (!encenderOk) {
+      return false;
+    }
+
+    alquiler.contadorEncendido++;
+    return true;
   }
 
   /**
@@ -644,6 +678,29 @@ class Sistema {
     }
 
     return instancia.apagar();
+  }
+
+  /**
+   * Recaba información de todos los alquileres realizados y devuelve los ingresos totales para instancias de un tipo dado.
+   * @param {INSTANCIA_TIPO} tipo
+   */
+  ingresosPorTipoDeInstancia(tipo) {
+    let ingresos = 0;
+
+    for (let i = 0; i < this.arrayAlquileres.length; i++) {
+      let alquiler = this.arrayAlquileres[i];
+
+      let instancia = this.buscarInstanciaPorID(alquiler.idInstancia);
+
+      if (instancia.tipo === tipo) {
+        ingresos +=
+          tipoACostoAlquiler(instancia.tipo) +
+          (alquiler.contadorEncendido - 1) *
+            tipoACostoEncendido(instancia.tipo);
+      }
+    }
+
+    return ingresos;
   }
 
   precargaDeDatos() {
