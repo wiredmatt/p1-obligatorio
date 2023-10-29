@@ -12,7 +12,6 @@ class Sistema {
      * @type {MaquinaVirtual[]}
      */
     this.arrayInstancias = [];
-
     /**
      * @type {Alquiler[]}
      */
@@ -90,6 +89,13 @@ class Sistema {
   }
 
   /**
+   * Crea un usuario común con los datos provistos. Pendiente de aprobación.
+   *
+   * En caso de que ya exista un usuario o admin con el mismo nombre de usuario, false.
+   *
+   * En caso de que no validen los datos proporcionados, false
+   *
+   * En caso de que esté todo bien, true
    *
    * @param {string} pNombre
    * @param {string} pApellido
@@ -97,7 +103,7 @@ class Sistema {
    * @param {string} pContrasena
    * @param {number} pNroTjt
    * @param {number} pCvcTjt
-   * @returns
+   * @returns {boolean}
    */
   registrarUsuario(pNombre, pApellido, pNomUsu, pContrasena, pNroTjt, pCvcTjt) {
     if (
@@ -110,9 +116,10 @@ class Sistema {
         pCvcTjt
       )
     ) {
-      console.log("Error registro usuario");
       return false;
     }
+
+    pNomUsu = pNomUsu.toLowerCase(); // para que sea case insensitive
 
     let usuario = this.buscarUsuarioObjeto(pNomUsu);
     let admin = this.buscarAdminObjeto(pNomUsu);
@@ -127,10 +134,8 @@ class Sistema {
         pCvcTjt
       );
       this.arrayUsuariosComunes.push(usuario);
-      console.log("Usuario registrado ok");
       return true;
     }
-    console.log("Error registro usuario");
     return false;
   }
 
@@ -190,6 +195,11 @@ class Sistema {
     return true;
   }
 
+  /**
+   * Debe tener al menos 5 caracteres, al menos una mayúscula, al menos una minúscula y al menos un número.
+   * @param {string} pContrasena
+   * @returns {boolean}
+   */
   validarContrasena(pContrasena) {
     let cumpleLargo = pContrasena.length >= 5;
     let tieneMayus = false;
@@ -210,6 +220,11 @@ class Sistema {
     return cumpleLargo && tieneMayus && tieneMinus && tieneNumero;
   }
 
+  /**
+   * Dado un nombre de usuario buscará al usuario entre los usuarios comunes.
+   * @param {string} pNombreUsuario
+   * @returns {?UsuarioComun}
+   */
   buscarUsuarioObjeto(pNombreUsuario) {
     let i = 0;
 
@@ -224,13 +239,18 @@ class Sistema {
     return null;
   }
 
+  /**
+   * Dado un nombre de usuario buscará al usuario entre los administradores.
+   * @param {string} pNombreUsuario
+   * @returns {?UsuarioAdministrador}
+   */
   buscarAdminObjeto(pNombreUsuario) {
     let i = 0;
 
     while (i < this.arrayUsuariosAdmin.length) {
-      let unUsuario = this.arrayUsuariosAdmin[i];
-      if (unUsuario.nombreUsuario === pNombreUsuario) {
-        return unUsuario;
+      let unAdmin = this.arrayUsuariosAdmin[i];
+      if (unAdmin.nombreUsuario === pNombreUsuario) {
+        return unAdmin;
       }
       i++;
     }
@@ -238,11 +258,20 @@ class Sistema {
     return null;
   }
 
+  /**
+   * Valida una tarjeta de crédito usando el algorítmo de luhn.
+   *
+   * La tarjeta debe cumplir el formato xxxx-xxxx-xxxx-xxxx.
+   *
+   * De forma tal que cada x es un número, y estos sean 16 en total.
+   *
+   * Esta función prepara el string a usar en la función `validarLuhn` removiendo los guiones.
+   *
+   * @param {string} pNumeroTarjeta
+   * @returns {boolean}
+   */
   validarTarjeta(pNumeroTarjeta) {
-    // let esValida = true; //falso
-
     if (pNumeroTarjeta.length !== 19) {
-      //esValida = false;
       return false;
     }
 
@@ -251,33 +280,32 @@ class Sistema {
       pNumeroTarjeta.charAt(9) !== "-" ||
       pNumeroTarjeta.charAt(14) !== "-"
     ) {
-      // esValida = false;
       return false;
     }
 
-    //aca vamos a tener eventualmente solo los numeros de la tarjeta
-    //sin los guiones
+    //aca vamos a tener eventualmente solo los numeros de la tarjeta sin los guiones
     let tarjetaFormateada = this.sacarGuiones(pNumeroTarjeta);
 
     if (tarjetaFormateada.length !== 16) {
-      // esValida = false;
       return false;
     }
 
     if (isNaN(tarjetaFormateada)) {
-      //esValida = false;
       return false;
     }
 
     if (!this.validarLuhn(tarjetaFormateada)) {
-      //esValida = false;
       return false;
     }
 
     return true;
   }
 
-  //va a recibir el numero de tarjeta ya formateado
+  /**
+   * Recibe una tarjeta ya formateada y validada para comprobar si es válida usando el algorítmo de luhn.
+   * @param {string} pNumeroTjtFormateado
+   * @returns {boolean}
+   */
   validarLuhn(pNumeroTjtFormateado) {
     let suma = 0;
     let duplicar = true;
@@ -287,13 +315,10 @@ class Sistema {
         let duplicado = numeroActual * 2;
         if (duplicado > 9) {
           duplicado = duplicado - 9;
-          // duplicado = (duplicado % 10) + 1
         }
         suma += duplicado;
-        //duplicar = false;
       } else {
         suma += numeroActual;
-        //duplicar = true;
       }
       duplicar = !duplicar;
     }
@@ -424,7 +449,7 @@ class Sistema {
   }
 
   /**
-   * Consigue las máquinas disponibles en el sistema.
+   * Consigue las máquinas disponibles en el sistema dado un tipo.
    * @param {INSTANCIA_TIPO} tipo
    * @returns {MaquinaVirtual[]}
    */
@@ -443,6 +468,7 @@ class Sistema {
   }
 
   /**
+   * Busca todas las instancias del tipo dado.
    * @param {INSTANCIA_TIPO} tipo
    * @returns {MaquinaVirtual[]}
    */
@@ -491,10 +517,6 @@ class Sistema {
       }
     }
 
-    console.log(
-      `Se eliminaron ${instanciasAEliminar.length} instancias del tipo ${tipo}.`
-    );
-
     return true;
   }
 
@@ -508,12 +530,10 @@ class Sistema {
       let alquilada = this.arrayAlquileres[i];
 
       if (alquilada.idInstancia === id) {
-        console.log(`la maquina ${id} NO esta libre`);
         return false;
       }
     }
 
-    console.log(`la maquina ${id} SI esta libre`);
     return true;
   }
 
@@ -603,7 +623,6 @@ class Sistema {
         return instancia;
       }
     }
-
     return null;
   }
 
@@ -652,7 +671,6 @@ class Sistema {
     let admin3 = new UsuarioAdministrador("matt1", "1234La");
     let admin4 = new UsuarioAdministrador("lean1", "1234La");
     let admin5 = new UsuarioAdministrador("admin", "1234La");
-
     this.arrayUsuariosAdmin.push(admin1, admin2, admin3, admin4, admin5);
 
     // precarga de usuarios comunes
@@ -696,22 +714,19 @@ class Sistema {
       "4539-6253-0847-8250",
       "323"
     );
+    for (let i = 0; i < this.arrayUsuariosComunes.length; i++) {
+      this.activarUsuario(this.arrayUsuariosComunes[i].nombreUsuario);
+    }
 
     // precarga de instancias
     this.agregarInstancias("c7small", 8);
     this.agregarInstancias("c7medium", 5);
     this.agregarInstancias("c7large", 3);
-
     this.agregarInstancias("r7small", 7);
     this.agregarInstancias("r7medium", 5);
     this.agregarInstancias("r7large", 2);
-
     this.agregarInstancias("i7medium", 3);
     this.agregarInstancias("i7large", 2);
-
-    for (let i = 0; i < this.arrayUsuariosComunes.length; i++) {
-      this.activarUsuario(this.arrayUsuariosComunes[i].nombreUsuario);
-    }
 
     /**
      * ALQUILARLE MAQUINAS A USUARIOS
@@ -720,12 +735,10 @@ class Sistema {
       "c7small",
       this.arrayUsuariosComunes[0].nombreUsuario
     );
-
     this.alquilarInstancia(
       "r7small",
       this.arrayUsuariosComunes[0].nombreUsuario
     );
-
     this.alquilarInstancia(
       "c7small",
       this.arrayUsuariosComunes[1].nombreUsuario
