@@ -1,6 +1,6 @@
 /**
  * @typedef {("c7small" | "c7medium" | "c7large" | "r7small" | "r7medium" | "r7large" | "i7medium" | "i7large")} INSTANCIA_TIPO
- * @typedef {("small" | "medium" | "large" } INSTANCIA_TAMANIO
+ * @typedef {("small" | "medium" | "large")} INSTANCIA_TAMANIO
  *
  * @typedef {("Optimizadas para computo" | "Optimizadas para memoria" | "Optimizadas para almacenamiento")} INSTANCIA_CATEGORIA
  */
