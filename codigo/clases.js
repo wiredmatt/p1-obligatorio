@@ -152,6 +152,10 @@ class MaquinaVirtual {
   apagar() {
     this.estado = "APAGADA";
   }
+
+  deshabilitar() {
+    this.habilitada = false;
+  }
 }
 
 /**

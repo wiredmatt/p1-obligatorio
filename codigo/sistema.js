@@ -541,7 +541,7 @@ class Sistema {
 
         if (instanciaLibre.ID === instancia.ID) {
           // this.arrayInstancias.splice(j, 1); // borrado permanente
-          instancia.habilitada = false; // soft delete
+          instancia.deshabilitar(); // soft delete
           instancia.apagar(); // asegurarnos de que quede apagada.
         }
       }
