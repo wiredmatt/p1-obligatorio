@@ -719,14 +719,14 @@ class Sistema {
     }
 
     // precarga de instancias
-    this.agregarInstancias("c7small", 8);
+    this.agregarInstancias("c7small", 3);
     this.agregarInstancias("c7medium", 5);
     this.agregarInstancias("c7large", 3);
     this.agregarInstancias("r7small", 7);
     this.agregarInstancias("r7medium", 5);
     this.agregarInstancias("r7large", 2);
     this.agregarInstancias("i7medium", 3);
-    this.agregarInstancias("i7large", 2);
+    // this.agregarInstancias("i7large", 2);
 
     /**
      * ALQUILARLE MAQUINAS A USUARIOS

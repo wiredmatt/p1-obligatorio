@@ -93,7 +93,28 @@
         <div id="divContenidoUsuario" style="display: none">
           <div id="divUsuarioMisInstancias"></div>
           <div id="divUsuarioMisCostos"></div>
-          <div id="divUsuarioAlquilar"></div>
+          <div id="divUsuarioAlquilar">
+            <h2>Alquilar Instancias</h2>
+            <label for="slcOpcionesAlquiler" style="margin-left: 2px"
+              >Categoría</label
+            >
+            <select
+              id="slcOpcionesAlquiler"
+              style="width: 100%; margin-top: 4px"
+            >
+              <option value="Optimizadas para computo">
+                Optimizadas para Cómputo
+              </option>
+              <option value="Optimizadas para memoria">
+                Optimizadas para Memoria
+              </option>
+              <option value="Optimizadas para almacenamiento">
+                Optimizadas para Almacenamiento
+              </option>
+            </select>
+
+            <div id="divUsuarioAlquilarContenedorTabla"></div>
+          </div>
         </div>
       </div>
       <div id="footer">
