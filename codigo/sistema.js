@@ -491,13 +491,15 @@ class Sistema {
   }
 
   /**
-   * Intenta reducir el stock de instancias disponibles. En caso de que la cantidad no sea un número entero válido, no se reducirá el stock.
+   * Intenta reducir el stock de instancias disponibles.
+   * En caso de que la cantidad no sea un número entero válido, no se reducirá el stock.
    *
    * Ejemplo: `reducirStockDisponible("c7small", 5)` removerá 5 instancias del tipo "c7small".
    *
    * Ejemplo: `reducirStockDisponible("c7small", 5.5)` NO removerá ninguna instancia.
    * @param {INSTANCIA_TIPO} tipo
    * @param {number} cantidadAReducir Cantidad de instancias a sacar de las `libres`.
+   * @returns {boolean} `false` si no se pudo, `true` si se pudo.
    */
   reducirStockDisponible(tipo, cantidadAReducir) {
     if (!esNumeroEnteroValido(cantidadAReducir)) {
