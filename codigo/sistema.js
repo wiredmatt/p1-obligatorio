@@ -468,15 +468,19 @@ class Sistema {
   }
 
   /**
-   * Busca todas las instancias del tipo dado.
+   * Buscará por el criterio proporcionado, en `this.arrayInstancias`, o en `arrInstancias` de ser provisto.
+   *
    * @param {INSTANCIA_TIPO} tipo
+   * @param {?MaquinaVirtual[]} arrInstancias Si no es provisto, usará this.arrayInstancias.
+   *
    * @returns {MaquinaVirtual[]}
    */
-  buscarInstanciasPorTipo(tipo) {
+  buscarInstanciasPorTipo(tipo, arrInstancias = null) {
+    arrInstancias = arrInstancias || this.arrayInstancias;
     let instancias = [];
 
-    for (let i = 0; i < this.arrayInstancias.length; i++) {
-      let instancia = this.arrayInstancias[i];
+    for (let i = 0; i < arrInstancias.length; i++) {
+      let instancia = arrInstancias[i];
 
       if (instancia.tipo === tipo) {
         instancias.push(instancia);
@@ -535,30 +539,6 @@ class Sistema {
     }
 
     return true;
-  }
-
-  /**
-   * Buscará por el criterio proporcionado, en `this.arrayInstancias`, o en `arrInstancias` de ser provisto.
-   *
-   * @param {INSTANCIA_TAMANIO} tamanio
-   * @param {?MaquinaVirtual[]} arrInstancias Si no es provisto, usará this.arrayInstancias.
-   *
-   * @returns {MaquinaVirtual[]}
-   */
-  buscarInstanciasPorTamanio(tamanio, arrInstancias = null) {
-    arrInstancias = arrInstancias || this.arrayInstancias;
-
-    let arr = [];
-
-    for (let i = 0; i < arrInstancias.length; i++) {
-      let instancia = arrInstancias[i];
-
-      if (instancia.tipo.indexOf(tamanio) !== -1) {
-        arr.push(instancia);
-      }
-    }
-
-    return arr;
   }
 
   /**

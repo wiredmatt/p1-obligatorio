@@ -396,15 +396,20 @@ function verListadoDeInstanciasAdmin() {
 }
 
 /**
- * Genera el html para una `table` que contiene la información de los distintos tipos de instancias de una categoria dada.
+ * Genera el html para una `table` que contiene la información
+ * de los distintos tipos de instancias de una categoria dada.
  * @param {INSTANCIA_CATEGORIA} categoria
  */
 function generarTablaParaCategoriaInstanciaAdmin(categoria) {
+  // buscar todas las instancias para la categoria dada
+  // usaremos este arreglo pre-computado como argumento
+  // en la llamada a `sistema.buscarInstanciasPorTipo`.
+  // logrando optimizar el tiempo de ejecucion de la misma.
   let arrInstancias = sistema.buscarInstanciasPorCategoria(categoria);
 
-  let smalls = sistema.buscarInstanciasPorTamanio("small", arrInstancias);
-  let mediums = sistema.buscarInstanciasPorTamanio("medium", arrInstancias);
-  let larges = sistema.buscarInstanciasPorTamanio("large", arrInstancias);
+  // buscar todos los tipos posibles para esta categoria
+  // (ej: "c7.small", "c7.medium", etc.)
+  let tipos = tiposDeCategoria(categoria);
 
   let tabla = `
                 <h3>${categoria}</h3>
@@ -431,21 +436,13 @@ function generarTablaParaCategoriaInstanciaAdmin(categoria) {
                   </tr>
                 `;
 
-  let prefijo = prefijoSegunCategoria(categoria);
+  // generar una fila para cada tipo en esta categoria.
+  for (let i = 0; i < tipos.length; i++) {
+    let tipo = tipos[i];
+    let instancias = sistema.buscarInstanciasPorTipo(tipo, arrInstancias);
 
-  // i = almacenamiento no tiene smalls. No le generamos fila.
-  if (prefijo !== "i") {
-    tabla += generarFilaParaTipoInstanciaAdmin(
-      prefijo + "small",
-      smalls.length
-    );
+    tabla += generarFilaParaTipoInstanciaAdmin(tipo, instancias.length);
   }
-
-  tabla += generarFilaParaTipoInstanciaAdmin(
-    prefijo + "medium",
-    mediums.length
-  );
-  tabla += generarFilaParaTipoInstanciaAdmin(prefijo + "large", larges.length);
 
   tabla += "</table>";
 
@@ -528,7 +525,8 @@ function cambiarFiltroAlquilerUsuario() {
 }
 
 /**
- * Muestra todas las instancias que se pueden alquilar para una categoria previamente seleccionada.
+ * Muestra todas las instancias que se pueden alquilar
+ * para una categoria previamente seleccionada.
  * @default "Optimizadas para computo"
  */
 function verOpcionesAlquilerUsuario() {
@@ -783,12 +781,16 @@ function changeFiltroInstancias() {
  * Opcionalmente, se puede filtrar por un estado dado.
  *
  * @param {("APAGADA" | "ENCENDIDA" | "todas")} filtro
+ * @default "todas"
  */
 function filtrarMisInstanciasUsuario(filtro = "todas") {
   filtroInstanciasUsuario = filtro;
   verMisInstanciasUsuario();
 }
 
+/**
+ * Muestra los costos de cada tipo de instancia que el usuario tiene en alquiler.
+ */
 function verMisCostos() {
   ocultarElemento("divUsuarioMisInstancias");
   ocultarElemento("divUsuarioAlquilar");
@@ -817,54 +819,13 @@ function verMisCostos() {
     usuarioLogeado.nombreUsuario
   );
 
-  let c7smalls = [];
-  let c7mediums = [];
-  let c7larges = [];
-  let r7smalls = [];
-  let r7mediums = [];
-  let r7larges = [];
-  let i7mediums = [];
-  let i7larges = [];
+  for (let i = 0; i < arrTipoInstancias.length; i++) {
+    let tipo = arrTipoInstancias[i];
 
-  for (let i = 0; i < todasMisInstancias.length; i++) {
-    let instancia = todasMisInstancias[i];
+    let instancias = sistema.buscarInstanciasPorTipo(tipo, todasMisInstancias);
 
-    switch (instancia.tipo) {
-      case "c7small":
-        c7smalls.push(instancia);
-        break;
-      case "c7medium":
-        c7mediums.push(instancia);
-        break;
-      case "c7large":
-        c7larges.push(instancia);
-        break;
-      case "r7small":
-        r7smalls.push(instancia);
-        break;
-      case "r7medium":
-        r7mediums.push(instancia);
-        break;
-      case "r7large":
-        r7larges.push(instancia);
-        break;
-      case "i7medium":
-        i7mediums.push(instancia);
-        break;
-      case "i7large":
-        i7larges.push(instancia);
-        break;
-    }
+    tabla += crearFilaCostosUsuario(instancias);
   }
-
-  tabla += crearFilaCostosUsuario(c7smalls);
-  tabla += crearFilaCostosUsuario(c7mediums);
-  tabla += crearFilaCostosUsuario(c7larges);
-  tabla += crearFilaCostosUsuario(r7smalls);
-  tabla += crearFilaCostosUsuario(r7mediums);
-  tabla += crearFilaCostosUsuario(r7larges);
-  tabla += crearFilaCostosUsuario(i7mediums);
-  tabla += crearFilaCostosUsuario(i7larges);
 
   tabla += "</table>";
 
