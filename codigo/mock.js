@@ -10,12 +10,13 @@ function tryMock() {
     /**
      * ADMIN LOGIN
      */
-    iniciarSesionUI("mateo", "1234La"); // mateo es admin.
-    verListadoDeInstanciasAdmin();
+    // iniciarSesionUI("mateo", "1234La"); // mateo es admin.
+    // verListadoDeInstanciasAdmin();
 
     /**
      * USER LOGIN
      */
-    // iniciarSesionUI("matteo", "1234La"); // matteo es usuario.
+    iniciarSesionUI("matteo", "1234La"); // matteo es usuario.
+    verOpcionesAlquilerUsuario();
   }
 }
