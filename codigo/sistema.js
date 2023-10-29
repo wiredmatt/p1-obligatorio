@@ -720,7 +720,7 @@ class Sistema {
   }
 
   precargaDeDatos() {
-    // precarga de usuarios administradores
+    // precarga de usuarios administradores - 5
     let admin1 = new UsuarioAdministrador("gaston", "1234La");
     let admin2 = new UsuarioAdministrador("mateo", "1234La");
     let admin3 = new UsuarioAdministrador("matt1", "1234La");
@@ -728,7 +728,7 @@ class Sistema {
     let admin5 = new UsuarioAdministrador("admin", "1234La");
     this.arrayUsuariosAdmin.push(admin1, admin2, admin3, admin4, admin5);
 
-    // precarga de usuarios comunes
+    // precarga de usuarios comunes - 5
     this.registrarUsuario(
       "mateo",
       "carriqui",
@@ -781,10 +781,9 @@ class Sistema {
     this.agregarInstancias("r7medium", 5);
     this.agregarInstancias("r7large", 2);
     this.agregarInstancias("i7medium", 3);
-    // this.agregarInstancias("i7large", 2);
 
     /**
-     * ALQUILARLE MAQUINAS A USUARIOS
+     * ALQUILARLE MAQUINAS A USUARIOS - 10 Alquileres.
      */
     this.alquilarInstancia(
       "c7small",
@@ -797,6 +796,34 @@ class Sistema {
     this.alquilarInstancia(
       "c7small",
       this.arrayUsuariosComunes[1].nombreUsuario
+    );
+    this.alquilarInstancia(
+      "c7medium",
+      this.arrayUsuariosComunes[1].nombreUsuario
+    );
+    this.alquilarInstancia(
+      "c7large",
+      this.arrayUsuariosComunes[2].nombreUsuario
+    );
+    this.alquilarInstancia(
+      "r7small",
+      this.arrayUsuariosComunes[2].nombreUsuario
+    );
+    this.alquilarInstancia(
+      "r7medium",
+      this.arrayUsuariosComunes[3].nombreUsuario
+    );
+    this.alquilarInstancia(
+      "r7medium",
+      this.arrayUsuariosComunes[3].nombreUsuario
+    );
+    this.alquilarInstancia(
+      "i7medium",
+      this.arrayUsuariosComunes[4].nombreUsuario
+    );
+    this.alquilarInstancia(
+      "i7medium",
+      this.arrayUsuariosComunes[4].nombreUsuario
     );
   }
 }
