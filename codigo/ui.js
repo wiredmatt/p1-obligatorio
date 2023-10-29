@@ -59,6 +59,11 @@ function inicio() {
     .querySelector("#aGestionarInstancias")
     .addEventListener("click", verListadoDeInstanciasAdmin);
 
+  // ADMIN UI - Administrador puede ver un reporte de los ingresos del sistema
+  document
+    .querySelector("#aReportes")
+    .addEventListener("click", verReportesAdmin);
+
   // USUARIO UI - Usuario puede ver y operar sobre sus instancias
   document
     .querySelector("#aMisInstancias")
@@ -72,6 +77,7 @@ function inicio() {
     .querySelector("#aAlquilar")
     .addEventListener("click", verOpcionesAlquilerUsuario);
 
+  // USUARIO UI - Usuario puede filtrar maquinas para alquilar
   document
     .querySelector("#slcOpcionesAlquiler")
     .addEventListener("change", cambiarFiltroAlquilerUsuario);
@@ -874,4 +880,60 @@ function crearFilaCostosUsuario(arrInstancias) {
     <td>US$ ${costoTotal}</td>
   </tr>
   `;
+}
+
+function verReportesAdmin() {
+  ocultarElemento("divAdminAdministrarUsuario");
+  ocultarElemento("divAdminStockInstancias");
+
+  let tabla = `
+                <h2>Reportes</h2>
+                <table>
+                  <tr>
+                      <th>
+                        Tipo de Instancia
+                      </th>
+                      <th>
+                        Alquileres efectuados
+                      </th>
+                      <th>
+                        Ingresos
+                      </th>
+                  </tr>
+                `;
+
+  let totalCantidadAlquileres = 0;
+  let totalIngresos = 0;
+
+  for (let i = 0; i < arrTipoInstancias.length; i++) {
+    let tipo = arrTipoInstancias[i];
+
+    let cantidadPorTipo = sistema.cantidadAlquileresPorTipo(tipo);
+    let ingresosPorTipo = sistema.ingresosPorTipoDeInstancia(tipo);
+
+    tabla += `
+              <tr>
+                  <td>${formatearTipoUI(tipo)}</td>
+                  <td>${cantidadPorTipo}</td>
+                  <td>US$ ${ingresosPorTipo}</td>
+              </tr>
+    `;
+
+    totalCantidadAlquileres += cantidadPorTipo;
+    totalIngresos += ingresosPorTipo;
+  }
+
+  tabla += `
+              <tr style="outline: thin solid; font-weight: bold">
+                  <td>TOTAL</td>
+                  <td>${totalCantidadAlquileres}</td>
+                  <td>US$ ${totalIngresos}</td>
+              </tr>
+  `;
+
+  tabla += "</table>";
+
+  imprimirEnHtml("divAdminReportes", tabla);
+
+  mostrarElemento("divAdminReportes");
 }
