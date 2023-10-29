@@ -8,6 +8,11 @@ class Sistema {
      * @type {UsuarioComun[]}
      */
     this.arrayUsuariosComunes = [];
+
+    /**
+     * @type {TipoInstancia[]}
+     */
+    this.arrayTiposInstancia = [];
     /**
      * @type {MaquinaVirtual[]}
      */
@@ -16,6 +21,12 @@ class Sistema {
      * @type {Alquiler[]}
      */
     this.arrayAlquileres = [];
+
+    this.categorias = [
+      "Optimizadas para computo",
+      "Optimizadas para memoria",
+      "Optimizadas para almacenamiento",
+    ];
 
     this.precargaDeDatos();
   }
@@ -385,6 +396,7 @@ class Sistema {
    *
    * Esta función es llamada al bloquear un usuario. NO debe usarse en otro contexto.
    * @param {string} pNombreUsuario
+   * @private
    */
   liberarInstanciasAlquiladas(pNombreUsuario) {
     for (let i = 0; i < this.arrayAlquileres.length; i++) {
@@ -442,8 +454,11 @@ class Sistema {
 
     for (let i = 0; i < this.arrayInstancias.length; i++) {
       let instancia = this.arrayInstancias[i];
+      if (!instancia.habilitada) continue;
 
-      if (tipoACategoria(instancia.tipo) === categoria) {
+      let tipoI = sistema.buscarTipo(instancia.tipo);
+
+      if (tipoI.categoria === categoria) {
         instancias.push(instancia);
       }
     }
@@ -462,7 +477,11 @@ class Sistema {
     for (let i = 0; i < this.arrayInstancias.length; i++) {
       let instancia = this.arrayInstancias[i];
 
-      if (instancia.tipo === tipo && this.maquinaEstaLibre(instancia.ID)) {
+      if (
+        instancia.tipo === tipo &&
+        instancia.habilitada &&
+        this.maquinaEstaLibre(instancia.ID)
+      ) {
         libres.push(instancia);
       }
     }
@@ -485,7 +504,7 @@ class Sistema {
     for (let i = 0; i < arrInstancias.length; i++) {
       let instancia = arrInstancias[i];
 
-      if (instancia.tipo === tipo) {
+      if (instancia.tipo === tipo && instancia.habilitada) {
         instancias.push(instancia);
       }
     }
@@ -521,7 +540,9 @@ class Sistema {
         const instancia = this.arrayInstancias[j];
 
         if (instanciaLibre.ID === instancia.ID) {
-          this.arrayInstancias.splice(j, 1);
+          // this.arrayInstancias.splice(j, 1); // borrado permanente
+          instancia.habilitada = false; // soft delete
+          instancia.apagar(); // asegurarnos de que quede apagada.
         }
       }
     }
@@ -693,16 +714,55 @@ class Sistema {
       let instancia = this.buscarInstanciaPorID(alquiler.idInstancia);
 
       if (instancia.tipo === tipo) {
+        let tipoI = this.buscarTipo(instancia.tipo);
+
         ingresos +=
-          tipoACostoAlquiler(instancia.tipo) +
-          (alquiler.contadorEncendido - 1) *
-            tipoACostoEncendido(instancia.tipo);
+          tipoI.costoAlquiler +
+          (alquiler.contadorEncendido - 1) * tipoI.costoEncendido;
       }
     }
 
     return ingresos;
   }
 
+  /**
+   * @param {string} pTipo
+   * @returns {?TipoInstancia}
+   */
+  buscarTipo(pTipo) {
+    for (let i = 0; i < this.arrayTiposInstancia.length; i++) {
+      let tipoI = this.arrayTiposInstancia[i];
+
+      if (tipoI.tipo === pTipo) {
+        return tipoI;
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * @param {string} categoria
+   * @returns {string[]}
+   */
+  buscarTiposDeCategoria(categoria) {
+    let tipos = [];
+
+    for (let i = 0; i < this.arrayTiposInstancia.length; i++) {
+      let tipoI = this.arrayTiposInstancia[i];
+
+      if (tipoI.categoria === categoria) {
+        tipos.push(tipoI.tipo);
+      }
+    }
+
+    return tipos;
+  }
+
+  /**
+   * @param {string} tipo
+   * @returns {number}
+   */
   cantidadAlquileresPorTipo(tipo) {
     let cantidad = 0;
 
@@ -717,6 +777,44 @@ class Sistema {
     }
 
     return cantidad;
+  }
+
+  esCategoriaValida(pCategoria) {
+    for (let i = 0; i < this.categorias.length; i++) {
+      if (this.categorias[i] === pCategoria) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Agrega un nuevo TipoInstancia a this.arrayTiposInstancia.
+   * @param {string} pTipo el tipo a agregar
+   * @param {number} pCostoAlquiler costo a cobrar al clickear en "Alquilar"
+   * @param {number} pCostoEncendido costo al hacer click en "Encender"
+   * @param {string} pCategoria categoria a la que corresponde este tipo.
+   */
+  agregarTipoInstancia(pTipo, pCostoAlquiler, pCostoEncendido, pCategoria) {
+    if (
+      !hayCaracteres(pTipo) ||
+      isNaN(pCostoAlquiler) ||
+      isNaN(pCostoEncendido) ||
+      !this.esCategoriaValida(pCategoria)
+    ) {
+      console.log("datos para agregar tipo de instancia invalidos");
+      return false;
+    }
+
+    let tipoI = new TipoInstancia(
+      pTipo,
+      pCostoAlquiler,
+      pCostoEncendido,
+      pCategoria
+    );
+
+    this.arrayTiposInstancia.push(tipoI);
   }
 
   precargaDeDatos() {
@@ -773,7 +871,27 @@ class Sistema {
       this.activarUsuario(this.arrayUsuariosComunes[i].nombreUsuario);
     }
 
-    // precarga de instancias
+    // precarga de tipos de instancia
+    this.agregarTipoInstancia("c7small", 20, 2.5, "Optimizadas para computo");
+    this.agregarTipoInstancia("c7medium", 30, 3.5, "Optimizadas para computo");
+    this.agregarTipoInstancia("c7large", 50, 6.0, "Optimizadas para computo");
+    this.agregarTipoInstancia("r7small", 35, 4.0, "Optimizadas para memoria");
+    this.agregarTipoInstancia("r7medium", 50, 6.5, "Optimizadas para memoria");
+    this.agregarTipoInstancia("r7large", 60, 7.0, "Optimizadas para memoria");
+    this.agregarTipoInstancia(
+      "i7medium",
+      30,
+      3.5,
+      "Optimizadas para almacenamiento"
+    );
+    this.agregarTipoInstancia(
+      "i7large",
+      50,
+      6.5,
+      "Optimizadas para almacenamiento"
+    );
+
+    // precarga de stock por tipo de instancia
     this.agregarInstancias("c7small", 3);
     this.agregarInstancias("c7medium", 5);
     this.agregarInstancias("c7large", 3);
