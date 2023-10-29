@@ -623,14 +623,7 @@ class Sistema {
       return false;
     }
 
-    if (instancia.estado === "ENCENDIDA") {
-      return false;
-    }
-
-    instancia.estado = "ENCENDIDA";
-    instancia.contadorEncendido++;
-
-    return true;
+    return instancia.encender();
   }
 
   /**
@@ -639,15 +632,17 @@ class Sistema {
    * @returns {boolean}
    */
   apagarInstancia(id) {
+    if (!esNumeroEnteroValido(id)) {
+      return false;
+    }
+
     let instancia = this.buscarInstanciaPorID(id);
 
     if (instancia === null) {
       return false;
     }
 
-    instancia.estado = "APAGADA";
-
-    return true;
+    return instancia.apagar();
   }
 
   precargaDeDatos() {

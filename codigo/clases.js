@@ -149,7 +149,7 @@ class MaquinaVirtual {
    */
   recalcularCostoAcumulado() {
     this.costoAcumulado =
-      this.costoAlquiler + (this.costoEncendido - 1) * this.costoEncendido;
+      this.costoAlquiler + (this.contadorEncendido - 1) * this.costoEncendido;
   }
 }
 
