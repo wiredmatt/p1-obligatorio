@@ -72,6 +72,37 @@ class UsuarioComun {
   }
 }
 
+class TipoInstancia {
+  constructor(pTipo, pCostoAlquiler, pCostoEncendido, pCategoria) {
+    /**
+     * @type string
+     */
+    this.tipo = pTipo;
+    /**
+     * @type number
+     */
+    this.costoAlquiler = pCostoAlquiler;
+    /**
+     * @type number
+     */
+    this.costoEncendido = pCostoEncendido;
+
+    /**
+     * @type string
+     */
+    this.categoria = pCategoria;
+  }
+
+  /**
+   * costoAlquiler + (cantidadEncendidos -1) * costoEncendido
+   * @param {number} cantidadEncendidos
+   * @returns {number}
+   */
+  calcularCostos(cantidadEncendidos) {
+    return this.costoAlquiler + (cantidadEncendidos - 1) * this.costoEncendido;
+  }
+}
+
 class MaquinaVirtual {
   static contadorID = 1;
 
@@ -91,6 +122,14 @@ class MaquinaVirtual {
      * @type {("APAGADA" | "ENCENDIDA")}
      */
     this.estado = "APAGADA";
+
+    /**
+     * Al reducir el stock, en lugar de eliminarlas permanentemente de la "base de datos",
+     * sencillamente se deshabilitan. De esta forma se puede evaluar correctamente la
+     * información de alquileres anteriores con los datos de la instancia.
+     * @type {boolean}
+     */
+    this.habilitada = true;
 
     MaquinaVirtual.contadorID++;
   }
