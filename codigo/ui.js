@@ -552,6 +552,7 @@ function verOpcionesAlquilerUsuario() {
   let tiposAMostrar = tiposDeCategoria(filtroInstanciasAlquilar);
 
   let tabla = `
+                <p id="pMensajeAlquiler"></p>
                 <table>
                   <tr>
                       <th>
@@ -637,10 +638,19 @@ function alquilarInstanciaUI() {
 
     // NOTE: El mensaje de exito debería mostrarse luego de que se refresque la tabla.
     // de otra forma, se pierde el mensaje al refrescar la tabla posteriormente.
-
-    alert("maquina alquilada con exito!"); // TODO: Mostrar el mensaje en un parrafo?
+    document.querySelector(
+      "#pMensajeAlquiler"
+    ).innerHTML = `La máquina ${formatearTipoUI(
+      tipo
+    )} fue alquilada correctamente.`;
   } else {
-    alert("no hay stock disponible para la maquina seleccionada."); // TODO: Mostrar el mensaje en un parrafo?
+    let el = document.querySelector("#pMensajeAlquiler");
+
+    el.innerHTML = `La máquina ${formatearTipoUI(
+      tipo
+    )} no tiene stock disponible por el momento. Intente de nuevo más tarde.`;
+    el.style.color = "red";
+    el.style["font-weight"] = 500;
   }
 }
 
