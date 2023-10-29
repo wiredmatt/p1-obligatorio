@@ -703,6 +703,22 @@ class Sistema {
     return ingresos;
   }
 
+  cantidadAlquileresPorTipo(tipo) {
+    let cantidad = 0;
+
+    for (let i = 0; i < this.arrayAlquileres.length; i++) {
+      let alquiler = this.arrayAlquileres[i];
+
+      let instancia = this.buscarInstanciaPorID(alquiler.idInstancia);
+
+      if (instancia.tipo === tipo) {
+        cantidad++;
+      }
+    }
+
+    return cantidad;
+  }
+
   precargaDeDatos() {
     // precarga de usuarios administradores
     let admin1 = new UsuarioAdministrador("gaston", "1234La");
