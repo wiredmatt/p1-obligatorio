@@ -56,8 +56,8 @@ function inicio() {
     .querySelector("#aMisInstancias")
     .addEventListener("click", verMisInstanciasUsuario);
 
-  // USUARIO UI - Usuario puede ver sus gastos
-  document.querySelector("#aMisGastos").addEventListener("click", verMisGastos);
+  // USUARIO UI - Usuario puede ver sus costos
+  document.querySelector("#aMisCostos").addEventListener("click", verMisCostos);
 
   // La pantalla por defecto es el login - no landing page (bajo presupuesto).
   mostrarPantallaLogin();
@@ -495,7 +495,8 @@ function guardarCambioStockTipoAdmin() {
 function verListadoDeInstanciasDisponiblesUsuario() {}
 
 function verMisInstanciasUsuario() {
-  ocultarElemento("divUsuarioMisGastos");
+  ocultarElemento("divUsuarioMisCostos");
+  mostrarElemento("divUsuarioMisInstancias");
 
   let misInstancias = sistema.buscarInstanciasDeUsuario(
     usuarioLogeado.nombreUsuario
@@ -614,7 +615,6 @@ function verMisInstanciasUsuario() {
 
 function encenderInstanciaUI() {
   let idInstancia = this.getAttribute("instancia-id");
-  console.log(idInstancia);
 
   sistema.encenderInstancia(Number(idInstancia));
   verMisInstanciasUsuario();
@@ -644,11 +644,12 @@ function filtrarMisInstanciasUsuario(filtro = "todas") {
   verMisInstanciasUsuario();
 }
 
-function verMisGastos() {
+function verMisCostos() {
   ocultarElemento("divUsuarioMisInstancias");
+  mostrarElemento("divUsuarioMisCostos");
 
   let tabla = `
-                <h2>Mis Gastos</h2>
+                <h2>Mis Costos</h2>
                 <table>
                   <tr>
                       <th>
@@ -721,12 +722,12 @@ function verMisGastos() {
 
   tabla += "</table>";
 
-  imprimirEnHtml("divUsuarioMisGastos", tabla);
-  mostrarElemento("divUsuarioMisGastos");
+  imprimirEnHtml("divUsuarioMisCostos", tabla);
+  mostrarElemento("divUsuarioMisCostos");
 }
 
 /**
- *
+ * Crea una fila que irá en la tabla
  * @param {MaquinaVirtual[]} arrInstancias
  */
 function crearFilaCostosUsuario(arrInstancias) {
@@ -736,13 +737,13 @@ function crearFilaCostosUsuario(arrInstancias) {
 
   let tipo = arrInstancias[0].tipo;
   let costoEncendido = tipoACostoEncendido(tipo);
+  let costoTotal = 0;
   let totalEncendidos = 0;
 
   for (let i = 0; i < arrInstancias.length; i++) {
+    costoTotal += arrInstancias[i].costoAcumulado;
     totalEncendidos += arrInstancias[i].contadorEncendido;
   }
-
-  let costoTotal = costoEncendido * totalEncendidos;
 
   return `
   <tr>
