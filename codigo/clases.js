@@ -83,41 +83,14 @@ class MaquinaVirtual {
      * @type {INSTANCIA_TIPO}
      */
     this.tipo = pTipo;
-
     /**
      * @type {number}
      */
     this.ID = MaquinaVirtual.contadorID;
-
-    /**
-     * @type {INSTANCIA_CATEGORIA}
-     */
-    this.categoria = tipoACategoria(pTipo);
-
-    /**
-     * @type {number}
-     */
-    this.costoAlquiler = tipoACostoAlquiler(pTipo);
-
-    /**
-     * @type {number}
-     */
-    this.costoEncendido = tipoACostoEncendido(pTipo);
-
     /**
      * @type {("APAGADA" | "ENCENDIDA")}
      */
     this.estado = "APAGADA";
-
-    /**
-     * @type {number}
-     */
-    this.contadorEncendido = 0;
-
-    /**
-     * @type {number}
-     */
-    this.costoAcumulado = 0;
 
     MaquinaVirtual.contadorID++;
   }
@@ -131,9 +104,6 @@ class MaquinaVirtual {
     }
 
     this.estado = "ENCENDIDA";
-    this.contadorEncendido = this.contadorEncendido + 1;
-    this.recalcularCostoAcumulado();
-
     return true;
   }
 
@@ -142,14 +112,6 @@ class MaquinaVirtual {
    */
   apagar() {
     this.estado = "APAGADA";
-  }
-
-  /**
-   * @private - metodo interno, no hay necesidad de llamarlo desde otro lugar.
-   */
-  recalcularCostoAcumulado() {
-    this.costoAcumulado =
-      this.costoAlquiler + (this.contadorEncendido - 1) * this.costoEncendido;
   }
 }
 
@@ -171,5 +133,23 @@ class Alquiler {
      * @type {string}
      */
     this.nomUsuario = nomUsuario;
+
+    /**
+     * Cuantas veces el usuario encendio esta instancia durante su alquiler.
+     * @type {number}
+     */
+    this.contadorEncendido = 0; // al alquilar una instancia esta se enciende automaticamente, no se cobra primer encendido.
+
+    /**
+     * @type {boolean}
+     * Determina si este alquiler está activo o no.
+     *
+     * Cuando se bloquea a un usuario, sus instancias alquiladas vuelven a estar disponibles para alquilar por otros usuarios. Pero no queremos borrar el alquiler del arreglo de alquileres, porque queremos mantener un registro de todos los alquileres que se hicieron. Y así poder determinar apropiadamente los ingresos finales del sistema. Usamos una baja lógica para lograr el efecto deseado.
+     */
+    this.activo = true;
+  }
+
+  desactivar() {
+    this.activo = false;
   }
 }
