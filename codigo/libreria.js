@@ -231,3 +231,18 @@ function esNumeroEnteroValido(valor) {
     valor !== " "
   );
 }
+
+/**
+ * Retorna un arreglo con todos los tipos de instancia para una categoria dada.
+ * @param {INSTANCIA_CATEGORIA} categoria
+ */
+function tiposDeCategoria(categoria) {
+  switch (categoria) {
+    case "Optimizadas para computo":
+      return ["c7small", "c7medium", "c7large"];
+    case "Optimizadas para memoria":
+      return ["r7small", "r7medium", "r7large"];
+    case "Optimizadas para almacenamiento":
+      return ["i7medium", "i7large"];
+  }
+}

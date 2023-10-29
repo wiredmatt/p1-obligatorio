@@ -13,10 +13,18 @@ let sistema = new Sistema();
 let usuarioLogeado = null;
 
 /**
+ * Filtro a aplicar para la vista de instancias alquiladas de los usuarios.
  * @type {("APAGADA" | "ENCENDIDA" | "todas")}
  * @global
  */
 let filtroInstanciasUsuario = "todas";
+
+/**
+ * Filtro a aplicar para la vista de alquileres, para los usuarios.
+ * @type {INSTANCIA_CATEGORIA}
+ * @global
+ */
+let filtroInstanciasAlquilar = "Optimizadas para computo";
 
 function inicio() {
   // USUARIO UI - Usuarios se registran
@@ -58,6 +66,15 @@ function inicio() {
 
   // USUARIO UI - Usuario puede ver sus costos
   document.querySelector("#aMisCostos").addEventListener("click", verMisCostos);
+
+  // USUARIO UI - Usuario puede ver maquinas para alquilar
+  document
+    .querySelector("#aAlquilar")
+    .addEventListener("click", verOpcionesAlquilerUsuario);
+
+  document
+    .querySelector("#slcOpcionesAlquiler")
+    .addEventListener("change", cambiarFiltroAlquilerUsuario);
 
   // La pantalla por defecto es el login - no landing page (bajo presupuesto).
   mostrarPantallaLogin();
@@ -109,10 +126,10 @@ function iniciarSesionUI(u, c) {
     } else {
       usuarioLogeado = sistema.buscarUsuarioObjeto(nomUsuario);
       filtroInstanciasUsuario = "todas"; // resetear el filtro.
+      filtroInstanciasAlquilar = "Optimizadas para computo"; // resetear el filtro.
       mostrarNavUsuario();
       mostrarElemento("divContenidoUsuario");
       verMisInstanciasUsuario(); // por defecto mostrarle sus instancias al usuario
-      // document.querySelector("#divContenidoUsuario").style.display = "block";
     }
 
     mostrarElemento("cabezal");
@@ -225,6 +242,12 @@ function validarDatosRegistroUsuario(
 
 function cerrarSesionUI() {
   usuarioLogeado = null;
+  filtroInstanciasAlquilar = "Optimizadas para computo";
+  document.querySelector("#slcOpcionesAlquiler").value =
+    filtroInstanciasAlquilar;
+
+  filtroInstanciasUsuario = "todas";
+
   mostrarPantallaLogin();
 }
 
@@ -494,12 +517,129 @@ function guardarCambioStockTipoAdmin() {
 }
 
 /**
- * Muestra todas las instancias que se pueden alquilar
+ * Callback para el evento "change" del select de la pantalla `Alquilar`.
+ * Regenera la tabla de opciones de alquiler según la categoría seleccionada.
+ * @see tiposDeCategoria
  */
-function verListadoDeInstanciasDisponiblesUsuario() {}
+function cambiarFiltroAlquilerUsuario() {
+  let filtro = this.value;
+  filtroInstanciasAlquilar = filtro;
+  verOpcionesAlquilerUsuario();
+}
 
+/**
+ * Muestra todas las instancias que se pueden alquilar para una categoria previamente seleccionada.
+ * @default "Optimizadas para computo"
+ */
+function verOpcionesAlquilerUsuario() {
+  ocultarElemento("divUsuarioMisInstancias");
+  ocultarElemento("divUsuarioMisCostos");
+
+  let tiposAMostrar = tiposDeCategoria(filtroInstanciasAlquilar);
+
+  let tabla = `
+                <table>
+                  <tr>
+                      <th>
+                        Instancia
+                      </th>
+                      <th>
+                        Costo Alquiler
+                      </th>
+                      <th>
+                        Costo por Encendido
+                      </th>
+                      <th>
+                        Disponible
+                      </th>
+                      <th>
+                        Operar
+                      </th>
+                  </tr>
+                `;
+
+  for (let i = 0; i < tiposAMostrar.length; i++) {
+    let tipo = tiposAMostrar[i];
+
+    let instancias = sistema.buscarInstanciasLibresPorTipo(tipo);
+
+    let textoDisponible = "No";
+    let clase = "alquilarInstancia";
+
+    if (instancias.length > 0) {
+      textoDisponible = "Si";
+    }
+
+    let botonAccion = `
+    <td>
+      <input 
+        instancia-tipo="${tipo}" 
+        class="${clase}" id="btnAlquilarInstancia${tipo}" 
+        type="button" value="Alquilar"
+      >
+    </td>`;
+
+    tabla += `
+                <tr>
+                    <td>${formatearTipoUI(tipo)}</td>
+                    <td>${tipoACostoAlquiler(tipo)}</td>
+                    <td>${tipoACostoEncendido(tipo)}</td>
+                    <td>${textoDisponible}</td>
+                    ${botonAccion}
+                </tr>    
+            `;
+  }
+
+  tabla += `</table>`;
+
+  imprimirEnHtml("divUsuarioAlquilarContenedorTabla", tabla);
+
+  let botonesDeAlquiler = document.querySelectorAll(".alquilarInstancia");
+
+  for (let i = 0; i < botonesDeAlquiler.length; i++) {
+    let idDelBoton = botonesDeAlquiler[i].id;
+    document
+      .querySelector(`#${idDelBoton}`)
+      .addEventListener("click", alquilarInstanciaUI);
+  }
+
+  mostrarElemento("divUsuarioAlquilar"); // refrescar la tabla
+}
+
+/**
+ * Callback para el evento "click" de los botones de "Alquilar" de la pantalla `Alquilar Instancias`.
+ * Refresca la tabla de opciones de alquiler luego de ejecutar la operación.
+ */
+function alquilarInstanciaUI() {
+  let tipo = this.getAttribute("instancia-tipo");
+
+  let alquilerOk = sistema.alquilarInstancia(
+    tipo,
+    usuarioLogeado.nombreUsuario
+  );
+
+  if (alquilerOk) {
+    verOpcionesAlquilerUsuario();
+
+    // NOTE: El mensaje de exito debería mostrarse luego de que se refresque la tabla.
+    // de otra forma, se pierde el mensaje al refrescar la tabla posteriormente.
+
+    alert("maquina alquilada con exito!"); // TODO: Mostrar el mensaje en un parrafo?
+  } else {
+    alert("no hay stock disponible para la maquina seleccionada."); // TODO: Mostrar el mensaje en un parrafo?
+  }
+}
+
+/**
+ * Muestra las instancias que el usuario tiene alquiladas.
+ * Genera una tabla con las instancias, y permite filtrarlas por estado.
+ *
+ * Habilita botones para encender y apagar las instancias, acorde a su estado actual.
+ * @default "todas"
+ */
 function verMisInstanciasUsuario() {
   ocultarElemento("divUsuarioMisCostos");
+  ocultarElemento("divUsuarioAlquilar");
   mostrarElemento("divUsuarioMisInstancias");
 
   let misInstancias = sistema.buscarInstanciasDeUsuario(
@@ -533,6 +673,7 @@ function verMisInstanciasUsuario() {
                 `;
 
   for (let i = 0; i < misInstancias.length; i++) {
+    // si el filtro no es "todas", y el estado de esta instancia no coincide con el filtro, no la mostramos.
     if (
       filtroInstanciasUsuario !== "todas" &&
       misInstancias[i].estado !== filtroInstanciasUsuario
@@ -650,6 +791,7 @@ function filtrarMisInstanciasUsuario(filtro = "todas") {
 
 function verMisCostos() {
   ocultarElemento("divUsuarioMisInstancias");
+  ocultarElemento("divUsuarioAlquilar");
   mostrarElemento("divUsuarioMisCostos");
 
   let tabla = `
