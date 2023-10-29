@@ -7,7 +7,7 @@ window.addEventListener("load", inicio);
 let sistema = new Sistema();
 
 /**
- * @type {UsuarioComun}
+ * @type {?UsuarioComun}
  * @global
  */
 let usuarioLogeado = null;
@@ -108,6 +108,7 @@ function iniciarSesionUI(u, c) {
       verListadoDeUsuarios(); // por defecto mostrarle la lista de usuarios al admin.
     } else {
       usuarioLogeado = sistema.buscarUsuarioObjeto(nomUsuario);
+      filtroInstanciasUsuario = "todas"; // resetear el filtro.
       mostrarNavUsuario();
       mostrarElemento("divContenidoUsuario");
       verMisInstanciasUsuario(); // por defecto mostrarle sus instancias al usuario
@@ -127,7 +128,8 @@ function iniciarSesionUI(u, c) {
 function registroUsuarioUI() {
   let nombre = obtenerValorDeUnElementoHTML("txtNombreUsuarioRegistro");
   let apellido = obtenerValorDeUnElementoHTML("txtApellidoRegistro");
-  let nombreUsuario = obtenerValorDeUnElementoHTML("txtNomUsuRegistro");
+  let nombreUsuario =
+    obtenerValorDeUnElementoHTML("txtNomUsuRegistro").toLowerCase(); // case insensitive
   let contrasena = obtenerValorDeUnElementoHTML("txtContrasenaRegistro");
   let tarjeta = obtenerValorDeUnElementoHTML("txtTarjeta");
   let cvcTarjeta = obtenerValorDeUnElementoHTML("txtCvcTarjeta");
@@ -233,6 +235,7 @@ function mostrarPantallaRegistro() {
 
 function verListadoDeUsuarios() {
   ocultarElemento("divAdminStockInstancias");
+  ocultarElemento("divAdminReportes");
 
   let tabla = `
                 <h2>Gestión de Usuarios del Sistema</h2>
@@ -332,7 +335,8 @@ function bloquearUsuarioUI() {
 }
 
 function verListadoDeInstanciasAdmin() {
-  document.querySelector("#divAdminAdministrarUsuario").style.display = "none";
+  ocultarElemento("divAdminAdministrarUsuario");
+  ocultarElemento("divAdminReportes");
 
   let tablaComputo = generarTablaParaCategoriaInstanciaAdmin(
     "Optimizadas para computo"
