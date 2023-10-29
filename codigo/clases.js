@@ -124,9 +124,7 @@ class MaquinaVirtual {
     this.estado = "APAGADA";
 
     /**
-     * Al reducir el stock, en lugar de eliminarlas permanentemente de la "base de datos",
-     * sencillamente se deshabilitan. De esta forma se puede evaluar correctamente la
-     * información de alquileres anteriores con los datos de la instancia.
+     * Para efectuar soft deletes en lugar de borrados permanentes
      * @type {boolean}
      */
     this.habilitada = true;
