@@ -381,6 +381,9 @@ function verListadoDeInstanciasAdmin() {
 
   let htmlFinal = `
   <h2>Gestión de Instancias</h2>
+
+  <p id="pErroresGIAdmin" style="color: red; font-weight: 500"></p>
+
   ${tablaComputo}
   <hr/>
   ${tablaMemoria}
@@ -501,22 +504,29 @@ function guardarCambioStockTipoAdmin() {
 
   let valorActual = sistema.buscarInstanciasLibresPorTipo(tipo).length;
   let valorNuevo = document.querySelector(`#numStockModificar${tipo}`).value;
+  let ok = false;
 
   if (esNumeroEnteroValido(valorNuevo)) {
     valorNuevoNumerico = Number(valorNuevo);
 
     if (valorNuevoNumerico > valorActual) {
       let cantidadAgregar = valorNuevoNumerico - valorActual;
-      sistema.agregarInstancias(tipo, cantidadAgregar);
+      ok = sistema.agregarInstancias(tipo, cantidadAgregar);
     } else if (valorNuevoNumerico < valorActual) {
       let cantidadAReducir = valorActual - valorNuevoNumerico;
-      sistema.reducirStockDisponible(tipo, cantidadAReducir);
+      ok = sistema.reducirStockDisponible(tipo, cantidadAReducir);
+    } else {
+      ok = true; // mejora la UX, si el admin puso mal un valor, el mismo se resettea al valor actual, y si vuelve a hacer click en guardar con dicho valor correcto, de esta forma se remueve el mensaje de error previo.
     }
-  } else {
-    // TODO: mostrar mensaje de error - Preguntarle al profe donde se muestran / como
   }
 
-  verListadoDeInstanciasAdmin();
+  verListadoDeInstanciasAdmin(); // mostramos primero el HTML
+
+  if (!ok) {
+    // Y luego mostramos el mensaje de error, si corresponde.
+    // No se puede hacer al reves. De otra forma, el mensaje de error se pierde al refrescar la tabla.
+    document.querySelector("#pErroresGIAdmin").innerHTML = "Valor inválido.";
+  }
 }
 
 /**
