@@ -84,8 +84,6 @@ function inicio() {
 
   // La pantalla por defecto es el login - no landing page (bajo presupuesto).
   mostrarPantallaLogin();
-
-  tryMock(); // forzar login, moverse a pagina especifica, etc. Solo habilitada en desarrollo.
 }
 
 function mostrarPantallaLogin() {
@@ -96,32 +94,17 @@ function mostrarPantallaLogin() {
   ocultarElemento("cabezal");
 }
 
-/**
- * u,c = parametros opcionales para automatizar el login mientras testeamos.
- * @param {?string} u
- * @param {?string} c
- */
-function iniciarSesionUI(u, c) {
-  usuarioLogeado = null;
+function iniciarSesionUI() {
   ocultarNavAdmin();
   ocultarNavUsuario();
   ocultarElemento("divContenidoAdministrador");
   ocultarElemento("divContenidoUsuario");
-  // ocultarOtrasCosas
 
-  let nomUsuario = obtenerValorDeUnElementoHTML("txtNomUsu") || u;
-  let contrasena = obtenerValorDeUnElementoHTML("txtPassword") || c;
+  let nomUsuario = obtenerValorDeUnElementoHTML("txtNomUsu");
+  let contrasena = obtenerValorDeUnElementoHTML("txtPassword");
 
   if (sistema.validarLogin(nomUsuario, contrasena)) {
     let esAdmin = sistema.esAdmin(nomUsuario);
-
-    let activo = sistema.usuarioEstaActivo(nomUsuario) || esAdmin;
-
-    if (!activo) {
-      imprimirEnHtml("pMensajesLogin", "Registro pendiente de aprobacion");
-
-      return;
-    }
 
     if (esAdmin) {
       document.querySelector("#divContenidoAdministrador").style.display =
@@ -130,7 +113,20 @@ function iniciarSesionUI(u, c) {
       mostrarElemento("divContenidoAdministrador");
       verListadoDeUsuarios(); // por defecto mostrarle la lista de usuarios al admin.
     } else {
-      usuarioLogeado = sistema.buscarUsuarioObjeto(nomUsuario);
+      let usuario = sistema.buscarUsuarioObjeto(nomUsuario);
+
+      if (usuario.estado === "bloqueado") {
+        imprimirEnHtml("pMensajesLogin", "Su usuario fue bloqueado.");
+        return;
+      } else if (usuario.estado === "pendiente") {
+        imprimirEnHtml(
+          "pMensajesLogin",
+          "Su registro se encuentra pendiente de aprobación."
+        );
+        return;
+      }
+
+      usuarioLogeado = usuario;
       filtroInstanciasUsuario = "todas"; // resetear el filtro.
       filtroInstanciasAlquilar = "Optimizadas para computo"; // resetear el filtro.
       mostrarNavUsuario();
@@ -166,7 +162,7 @@ function registroUsuarioUI() {
     cvcTarjeta
   );
 
-  if (erroresValidacion.length === 0) {
+  if (!arrayTieneElementos(erroresValidacion)) {
     if (sistema.buscarUsuarioObjeto(nombreUsuario) !== null) {
       imprimirEnHtml(
         "pInfoRegistroUsuario",
@@ -194,7 +190,7 @@ function registroUsuarioUI() {
       limpiarUnCampoDeTexto("txtCvcTarjeta");
       imprimirEnHtml(
         "pInfoRegistroUsuario",
-        "Usuario creado exitosamente. Pendiente de aprobacion"
+        "Usuario creado exitosamente. Pendiente de aprobación"
       );
     } else {
       imprimirEnHtml("pInfoRegistroUsuario", "Error al guardar el usuario");
@@ -870,7 +866,7 @@ function verMisCostos() {
  * @param {MaquinaVirtual[]} arrInstancias
  */
 function crearFilaCostosUsuario(arrInstancias) {
-  if (arrInstancias.length === 0) {
+  if (!arrayTieneElementos(arrInstancias)) {
     return "";
   }
 

@@ -559,7 +559,7 @@ class Sistema {
 
     let instancias = this.buscarInstanciasLibresPorTipo(tipoInstancia);
 
-    if (instancias.length === 0) {
+    if (!arrayTieneElementos(instancias)) {
       return false;
     }
 
