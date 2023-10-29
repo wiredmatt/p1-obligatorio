@@ -462,7 +462,11 @@ class Sistema {
     for (let i = 0; i < this.arrayInstancias.length; i++) {
       let instancia = this.arrayInstancias[i];
 
-      if (instancia.tipo === tipo && this.maquinaEstaLibre(instancia.ID)) {
+      if (
+        instancia.tipo === tipo &&
+        instancia.habilitada &&
+        this.maquinaEstaLibre(instancia.ID)
+      ) {
         libres.push(instancia);
       }
     }
@@ -485,7 +489,7 @@ class Sistema {
     for (let i = 0; i < arrInstancias.length; i++) {
       let instancia = arrInstancias[i];
 
-      if (instancia.tipo === tipo) {
+      if (instancia.tipo === tipo && instancia.habilitada) {
         instancias.push(instancia);
       }
     }
@@ -521,7 +525,9 @@ class Sistema {
         const instancia = this.arrayInstancias[j];
 
         if (instanciaLibre.ID === instancia.ID) {
-          this.arrayInstancias.splice(j, 1);
+          // this.arrayInstancias.splice(j, 1); // borrado permanente
+          instancia.habilitada = false; // soft delete
+          instancia.apagar(); // asegurarnos de que quede apagada.
         }
       }
     }

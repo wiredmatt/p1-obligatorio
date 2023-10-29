@@ -92,6 +92,12 @@ class MaquinaVirtual {
      */
     this.estado = "APAGADA";
 
+    /**
+     * Para efectuar soft deletes en lugar de borrados permanentes
+     * @type {boolean}
+     */
+    this.habilitada = true;
+
     MaquinaVirtual.contadorID++;
   }
 
@@ -112,6 +118,10 @@ class MaquinaVirtual {
    */
   apagar() {
     this.estado = "APAGADA";
+  }
+
+  deshabilitar() {
+    this.habilitada = false;
   }
 }
 
