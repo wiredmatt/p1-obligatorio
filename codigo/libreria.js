@@ -1,26 +1,3 @@
-function imprimirArray(pArrayParaImprimir) {
-  let mensaje = "";
-  for (let i = 0; i < pArrayParaImprimir.length; i++) {
-    mensaje += `${pArrayParaImprimir[i]} <br>`;
-  }
-  return mensaje;
-}
-
-function imprimirArrayEnUnaTabla(pArrayParaImprimir) {
-  let tabla = `<tr>
-                    <th>Palabra</th>
-                </tr>`;
-
-  for (let i = 0; i < pArrayParaImprimir.length; i++) {
-    tabla += `<tr>
-                    <td>
-                        ${pArrayParaImprimir[i]}
-                    </td>
-                </tr>`;
-  }
-  return tabla;
-}
-
 function hayCaracteres(pUnTexto) {
   let tengoCaracteres = false;
   let textoSinEspacios = pUnTexto.trim();
@@ -108,7 +85,7 @@ function ocultarElemento(pIdElemento) {
 /**
  * Recibe un tipo de instancia y lo devuelve formateado para mostrar en la interfaz de usuario.
  * Ejemplo: "c7small" -> "c7.small"
- * @param {INSTANCIA_TIPO} tipo
+ * @param {string} tipo
  */
 function formatearTipoUI(tipo) {
   let pre = tipo.substring(0, 2);

@@ -1,10 +1,3 @@
-/**
- * @typedef {("c7small" | "c7medium" | "c7large" | "r7small" | "r7medium" | "r7large" | "i7medium" | "i7large")} INSTANCIA_TIPO
- * @typedef {("small" | "medium" | "large")} INSTANCIA_TAMANIO
- *
- * @typedef {("Optimizadas para computo" | "Optimizadas para memoria" | "Optimizadas para almacenamiento")} INSTANCIA_CATEGORIA
- */
-
 class UsuarioAdministrador {
   /**
    * @param {string} pNombreUsuario
@@ -73,22 +66,28 @@ class UsuarioComun {
 }
 
 class TipoInstancia {
+  /**
+   * @param {string} pTipo nuevo tipo a crear @example "c7small"
+   * @param {number} pCostoAlquiler costo que se cobra cada vez que un usuario presiona `Alquilar`
+   * @param {number} pCostoEncendido costo que se cobra cada vez que un usuario presiona `Encender`, no se cobra la primera
+   * @param {string} pCategoria una categoría previamente cargada a `sistema.categorias` @example "Optimizadas para computo"
+   */
   constructor(pTipo, pCostoAlquiler, pCostoEncendido, pCategoria) {
     /**
-     * @type string
+     * @type {string}
      */
     this.tipo = pTipo;
     /**
-     * @type number
+     * @type {number}
      */
     this.costoAlquiler = pCostoAlquiler;
     /**
-     * @type number
+     * @type {number}
      */
     this.costoEncendido = pCostoEncendido;
 
     /**
-     * @type string
+     * @type {string}
      */
     this.categoria = pCategoria;
   }
@@ -107,11 +106,11 @@ class MaquinaVirtual {
   static contadorID = 1;
 
   /**
-   * @param {INSTANCIA_TIPO} pTipo
+   * @param {TipoInstancia} pTipo
    */
   constructor(pTipo) {
     /**
-     * @type {INSTANCIA_TIPO}
+     * @type {TipoInstancia}
      */
     this.tipo = pTipo;
     /**
@@ -151,6 +150,9 @@ class MaquinaVirtual {
     this.estado = "APAGADA";
   }
 
+  /**
+   * baja lógica para evitar borrados permanentes.
+   */
   deshabilitar() {
     this.habilitada = false;
   }
@@ -158,6 +160,8 @@ class MaquinaVirtual {
 
 /**
  * Un `Alquiler` se da entre un `UsuarioComun` y una `MaquinaVirtual`.
+ * @see {@link UsuarioComun}
+ * @see {@link MaquinaVirtual}
  */
 class Alquiler {
   /**
@@ -176,16 +180,16 @@ class Alquiler {
     this.nomUsuario = nomUsuario;
 
     /**
-     * Cuantas veces el usuario encendio esta instancia durante su alquiler.
+     * Cuantas veces el usuario encendió esta instancia durante su alquiler.
      * @type {number}
      */
-    this.contadorEncendido = 0; // al alquilar una instancia esta se enciende automaticamente, no se cobra primer encendido.
+    this.contadorEncendido = 0; // al alquilar una instancia esta se enciende automáticamente, no se el cobra primer encendido.
 
     /**
-     * @type {boolean}
      * Determina si este alquiler está activo o no.
      *
      * Cuando se bloquea a un usuario, sus instancias alquiladas vuelven a estar disponibles para alquilar por otros usuarios. Pero no queremos borrar el alquiler del arreglo de alquileres, porque queremos mantener un registro de todos los alquileres que se hicieron. Y así poder determinar apropiadamente los ingresos finales del sistema. Usamos una baja lógica para lograr el efecto deseado.
+     * @type {boolean}
      */
     this.activo = true;
   }
