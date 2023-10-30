@@ -324,7 +324,7 @@ function verListadoDeUsuarios() {
   }
   tabla += `</table>`;
 
-  document.querySelector("#divAdminAdministrarUsuario").innerHTML = tabla;
+  imprimirEnHtml("divAdminAdministrarUsuario", tabla);
 
   let botonesDeActivacion = document.querySelectorAll(".activacionUsuarios");
   for (let i = 0; i < botonesDeActivacion.length; i++) {
@@ -390,7 +390,7 @@ function verListadoDeInstanciasAdmin() {
 /**
  * Genera el html para una `table` que contiene la información
  * de los distintos tipos de instancias de una categoria dada.
- * @param {INSTANCIA_CATEGORIA} categoria
+ * @param {string} categoria
  */
 function generarTablaParaCategoriaInstanciaAdmin(categoria) {
   // buscar todas las instancias para la categoria dada
@@ -398,7 +398,6 @@ function generarTablaParaCategoriaInstanciaAdmin(categoria) {
   // en la llamada a `sistema.buscarInstanciasPorTipo`.
   // logrando optimizar el tiempo de ejecucion de la misma.
   let arrInstancias = sistema.buscarInstanciasPorCategoria(categoria);
-
   // buscar todos los tipos posibles para esta categoria
   // (ej: "c7.small", "c7.medium", etc.)
   let tipos = sistema.buscarTiposDeCategoria(categoria);
@@ -443,7 +442,7 @@ function generarTablaParaCategoriaInstanciaAdmin(categoria) {
 
 /**
  * Genera el html para una fila de una tabla que contiene la información de un tipo de instancia dado.
- * @param {INSTANCIA_TIPO} tipo
+ * @param {string} tipo
  * @param {number} stock
  * @returns
  */
@@ -508,14 +507,14 @@ function guardarCambioStockTipoAdmin() {
   if (!ok) {
     // Y luego mostramos el mensaje de error, si corresponde.
     // No se puede hacer al reves. De otra forma, el mensaje de error se pierde al refrescar la tabla.
-    document.querySelector("#pErroresGIAdmin").innerHTML = "Valor inválido.";
+    imprimirEnHtml("pErroresGIAdmin", "Valor inválido.");
   }
 }
 
 /**
  * Callback para el evento "change" del select de la pantalla `Alquilar`.
  * Regenera la tabla de opciones de alquiler según la categoría seleccionada.
- * @see Sistema.buscarTiposDeCategoria
+ * @see {@link Sistema.buscarTiposDeCategoria}
  */
 function cambiarFiltroAlquilerUsuario() {
   let filtro = this.value;
@@ -623,11 +622,11 @@ function alquilarInstanciaUI() {
 
     // NOTE: El mensaje de exito debería mostrarse luego de que se refresque la tabla.
     // de otra forma, se pierde el mensaje al refrescar la tabla posteriormente.
-    document.querySelector(
-      "#pMensajeAlquiler"
-    ).innerHTML = `La máquina ${formatearTipoUI(
-      tipo
-    )} fue alquilada correctamente.`;
+
+    imprimirEnHtml(
+      "pMensajeAlquiler",
+      `La máquina ${formatearTipoUI(tipo)} fue alquilada correctamente.`
+    );
   } else {
     let el = document.querySelector("#pMensajeAlquiler");
 
@@ -724,7 +723,7 @@ function verMisInstanciasUsuario() {
     tabla += `
                 <tr>
                     <td>INSTANCE_ID_${instancia.ID}</td>
-                    <td>${formatearTipoUI(instancia.tipo)}</td>
+                    <td>${formatearTipoUI(instancia.tipo.tipo)}</td>
                     <td>${instancia.estado}</td>
                     <td>${alquiler.contadorEncendido} ${textoVeces}</td>
                     ${botonAccion}
@@ -738,11 +737,14 @@ function verMisInstanciasUsuario() {
   imprimirEnHtml("divUsuarioMisInstancias", tabla);
 
   // poblar de opciones el select de filtros
-  document.querySelector("#slcFiltroMisInstancias").innerHTML = `
+  imprimirEnHtml(
+    "slcFiltroMisInstancias",
+    `
     <option id="todas" value="todas">Todas las instancias</option>
     <option id="ENCENDIDA" value="ENCENDIDA">Encendidas</option>
     <option id="APAGADA" value="APAGADA">Apagadas</option>
-  `;
+    `
+  );
 
   // buscar la opcion que corresponde al filtro actual y marcarla como seleccionada
   document
@@ -860,8 +862,7 @@ function crearFilaCostosUsuario(arrInstancias) {
   }
 
   let tipo = arrInstancias[0].tipo;
-  let tipoI = sistema.buscarTipo(tipo);
-  let costoEncendido = tipoI.costoEncendido;
+  let costoEncendido = tipo.costoEncendido;
   let costoTotal = 0;
   let totalEncendidos = 0;
 
@@ -872,13 +873,13 @@ function crearFilaCostosUsuario(arrInstancias) {
       usuarioLogeado.nombreUsuario
     );
 
-    costoTotal += tipoI.calcularCostos(alquiler.contadorEncendido);
+    costoTotal += tipo.calcularCostos(alquiler.contadorEncendido);
     totalEncendidos += alquiler.contadorEncendido;
   }
 
   return `
   <tr>
-    <td>${formatearTipoUI(tipo)}</td>
+    <td>${formatearTipoUI(tipo.tipo)}</td>
     <td>US$ ${costoEncendido}</td>
     <td>${totalEncendidos}</td>
     <td>US$ ${costoTotal}</td>

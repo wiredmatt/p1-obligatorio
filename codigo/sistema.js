@@ -22,6 +22,9 @@ class Sistema {
      */
     this.arrayAlquileres = [];
 
+    /**
+     * @type {string[]} Categorias de instancias.
+     */
     this.categorias = [
       "Optimizadas para computo",
       "Optimizadas para memoria",
@@ -85,7 +88,7 @@ class Sistema {
   /**
    * `true` si el usuario es administrador, `false` si no.
    * @param {string} pNomUsuario
-   * @returns
+   * @returns {boolean}
    */
   esAdmin(pNomUsuario) {
     let esAdmin = false;
@@ -413,7 +416,7 @@ class Sistema {
 
   /**
    * Agrega una instancia del tipo dado.
-   * @param {INSTANCIA_TIPO} pTipo
+   * @param {TipoInstancia} pTipo
    */
   agregarInstancia(pTipo) {
     let instancia = new MaquinaVirtual(pTipo);
@@ -428,7 +431,7 @@ class Sistema {
    *
    * Ejemplo: `agregarInstancias("c7small", 5.5)` NO agregará ninguna instancia.
    *
-   * @param {INSTANCIA_TIPO} pTipo
+   * @param {string} pTipo
    * @param {number} cantidadAgregar
    * @returns {boolean}
    */
@@ -437,8 +440,14 @@ class Sistema {
       return false;
     }
 
+    let tipoI = this.buscarTipo(pTipo);
+
+    if (!tipoI) {
+      return false;
+    }
+
     for (let i = 0; i < cantidadAgregar; i++) {
-      this.agregarInstancia(pTipo);
+      this.agregarInstancia(tipoI);
     }
 
     return true;
@@ -446,7 +455,7 @@ class Sistema {
 
   /**
    * Dada una categoría, devuelve todas las instancias que pertenecen a dicha categoría.
-   * @param {INSTANCIA_CATEGORIA} categoria
+   * @param {string} categoria
    * @returns {MaquinaVirtual[]}
    */
   buscarInstanciasPorCategoria(categoria) {
@@ -456,9 +465,7 @@ class Sistema {
       let instancia = this.arrayInstancias[i];
       if (!instancia.habilitada) continue;
 
-      let tipoI = sistema.buscarTipo(instancia.tipo);
-
-      if (tipoI.categoria === categoria) {
+      if (instancia.tipo.categoria === categoria) {
         instancias.push(instancia);
       }
     }
@@ -468,7 +475,7 @@ class Sistema {
 
   /**
    * Consigue las máquinas disponibles en el sistema dado un tipo.
-   * @param {INSTANCIA_TIPO} tipo
+   * @param {string} tipo
    * @returns {MaquinaVirtual[]}
    */
   buscarInstanciasLibresPorTipo(tipo) {
@@ -478,7 +485,7 @@ class Sistema {
       let instancia = this.arrayInstancias[i];
 
       if (
-        instancia.tipo === tipo &&
+        instancia.tipo.tipo === tipo &&
         instancia.habilitada &&
         this.maquinaEstaLibre(instancia.ID)
       ) {
@@ -492,7 +499,7 @@ class Sistema {
   /**
    * Buscará por el criterio proporcionado, en `this.arrayInstancias`, o en `arrInstancias` de ser provisto.
    *
-   * @param {INSTANCIA_TIPO} tipo
+   * @param {string} tipo
    * @param {?MaquinaVirtual[]} arrInstancias Si no es provisto, usará this.arrayInstancias.
    *
    * @returns {MaquinaVirtual[]}
@@ -504,7 +511,7 @@ class Sistema {
     for (let i = 0; i < arrInstancias.length; i++) {
       let instancia = arrInstancias[i];
 
-      if (instancia.tipo === tipo && instancia.habilitada) {
+      if (instancia.tipo.tipo === tipo && instancia.habilitada) {
         instancias.push(instancia);
       }
     }
@@ -513,13 +520,13 @@ class Sistema {
   }
 
   /**
-   * Intenta reducir el stock de instancias disponibles.
+   * Intenta reducir el stock de instancias disponibles con una baja lógica ( @see {MaquinaVirtual.deshabilitar()}).
    * En caso de que la cantidad no sea un número entero válido, no se reducirá el stock.
    *
    * Ejemplo: `reducirStockDisponible("c7small", 5)` removerá 5 instancias del tipo "c7small".
    *
    * Ejemplo: `reducirStockDisponible("c7small", 5.5)` NO removerá ninguna instancia.
-   * @param {INSTANCIA_TIPO} tipo
+   * @param {string} tipo
    * @param {number} cantidadAReducir Cantidad de instancias a sacar de las `libres`.
    * @returns {boolean} `false` si no se pudo, `true` si se pudo.
    */
@@ -529,6 +536,10 @@ class Sistema {
     }
 
     let libres = this.buscarInstanciasLibresPorTipo(tipo);
+
+    if (libres.length < cantidadAReducir) {
+      return false;
+    }
 
     const instanciasAEliminar = libres.splice(0, cantidadAReducir);
 
@@ -540,9 +551,9 @@ class Sistema {
         const instancia = this.arrayInstancias[j];
 
         if (instanciaLibre.ID === instancia.ID) {
+          instancia.apagar(); // asegurarnos de que quede apagada.
           // this.arrayInstancias.splice(j, 1); // borrado permanente
           instancia.deshabilitar(); // soft delete
-          instancia.apagar(); // asegurarnos de que quede apagada.
         }
       }
     }
@@ -569,7 +580,7 @@ class Sistema {
 
   /**
    * Le asigna una instancia del tipo provisto al usuario dado en alquiler, si este está habilitado Y si hay instancias disponibles.
-   * @param {INSTANCIA_TIPO} tipoInstancia
+   * @param {string} tipoInstancia
    * @param {string} nomUsuario
    * @returns {boolean}
    */
@@ -597,7 +608,7 @@ class Sistema {
    * Ejemplo: sistema.buscarAlquiler(true, 1, "mateo") buscará un alquiler activo de la instancia 1, alquilada por el usuario "mateo".
    * @param {boolean} activo
    * @param {number} idInstancia
-   * @param string} nomUsuario
+   * @param {string} nomUsuario
    * @returns
    */
   buscarAlquiler(activo, idInstancia, nomUsuario) {
@@ -703,7 +714,8 @@ class Sistema {
 
   /**
    * Recaba información de todos los alquileres realizados y devuelve los ingresos totales para instancias de un tipo dado.
-   * @param {INSTANCIA_TIPO} tipo
+   * @param {string} tipo
+   * @returns {number}
    */
   ingresosPorTipoDeInstancia(tipo) {
     let ingresos = 0;
@@ -713,12 +725,10 @@ class Sistema {
 
       let instancia = this.buscarInstanciaPorID(alquiler.idInstancia);
 
-      if (instancia.tipo === tipo) {
-        let tipoI = this.buscarTipo(instancia.tipo);
-
+      if (instancia.tipo.tipo === tipo) {
         ingresos +=
-          tipoI.costoAlquiler +
-          (alquiler.contadorEncendido - 1) * tipoI.costoEncendido;
+          instancia.tipo.costoAlquiler +
+          (alquiler.contadorEncendido - 1) * instancia.tipo.costoEncendido;
       }
     }
 
@@ -771,7 +781,7 @@ class Sistema {
 
       let instancia = this.buscarInstanciaPorID(alquiler.idInstancia);
 
-      if (instancia.tipo === tipo) {
+      if (instancia.tipo.tipo === tipo) {
         cantidad++;
       }
     }
@@ -779,6 +789,10 @@ class Sistema {
     return cantidad;
   }
 
+  /**
+   * @param {string} pCategoria
+   * @returns {boolean}
+   */
   esCategoriaValida(pCategoria) {
     for (let i = 0; i < this.categorias.length; i++) {
       if (this.categorias[i] === pCategoria) {
