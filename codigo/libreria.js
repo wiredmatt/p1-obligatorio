@@ -106,82 +106,6 @@ function ocultarElemento(pIdElemento) {
 }
 
 /**
- * @param {INSTANCIA_TIPO} tipo
- * @returns {INSTANCIA_CATEGORIA}
- */
-function tipoACategoria(tipo) {
-  switch (tipo.charAt(0)) {
-    case "c":
-      return "Optimizadas para computo";
-    case "r":
-      return "Optimizadas para memoria";
-    case "i":
-      return "Optimizadas para almacenamiento";
-  }
-}
-
-/**
- * @param {INSTANCIA_TIPO} tipo
- * @returns {number}
- */
-function tipoACostoAlquiler(tipo) {
-  switch (tipo) {
-    case "c7small":
-      return 20;
-    case "c7medium":
-      return 30;
-    case "c7large":
-      return 50;
-    case "r7small":
-      return 35;
-    case "r7medium":
-      return 50;
-    case "r7large":
-      return 60;
-    case "i7medium":
-      return 30;
-    case "i7large":
-      return 50;
-  }
-}
-
-/**
- * @param {INSTANCIA_TIPO} tipo
- * @returns {number}
- */
-function tipoACostoEncendido(tipo) {
-  switch (tipo) {
-    case "c7small":
-      return 2.5;
-    case "c7medium":
-      return 3.5;
-    case "c7large":
-      return 6.0;
-    case "r7small":
-      return 4.0;
-    case "r7medium":
-      return 6.5;
-    case "r7large":
-      return 7.0;
-    case "i7medium":
-      return 3.5;
-    case "i7large":
-      return 6.5;
-  }
-}
-
-let arrTipoInstancias = [
-  "c7small",
-  "c7medium",
-  "c7large",
-  "r7small",
-  "r7medium",
-  "r7large",
-  "i7medium",
-  "i7large",
-];
-
-/**
  * Recibe un tipo de instancia y lo devuelve formateado para mostrar en la interfaz de usuario.
  * Ejemplo: "c7small" -> "c7.small"
  * @param {INSTANCIA_TIPO} tipo
@@ -211,19 +135,4 @@ function esNumeroEnteroValido(valor) {
     Number(valor) >= 0 &&
     valor !== " "
   );
-}
-
-/**
- * Retorna un arreglo con todos los tipos de instancia para una categoria dada.
- * @param {INSTANCIA_CATEGORIA} categoria
- */
-function tiposDeCategoria(categoria) {
-  switch (categoria) {
-    case "Optimizadas para computo":
-      return ["c7small", "c7medium", "c7large"];
-    case "Optimizadas para memoria":
-      return ["r7small", "r7medium", "r7large"];
-    case "Optimizadas para almacenamiento":
-      return ["i7medium", "i7large"];
-  }
 }

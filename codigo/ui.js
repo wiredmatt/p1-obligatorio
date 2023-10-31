@@ -363,34 +363,21 @@ function verListadoDeInstanciasAdmin() {
   ocultarElemento("divAdminAdministrarUsuario");
   ocultarElemento("divAdminReportes");
 
-  let tablaComputo = generarTablaParaCategoriaInstanciaAdmin(
-    "Optimizadas para computo"
-  );
-
-  let tablaMemoria = generarTablaParaCategoriaInstanciaAdmin(
-    "Optimizadas para memoria"
-  );
-
-  let tablaAlmacenamiento = generarTablaParaCategoriaInstanciaAdmin(
-    "Optimizadas para almacenamiento"
-  );
-
-  let htmlFinal = `
+  let html = `
   <h2>Gestión de Instancias</h2>
 
   <p id="pErroresGIAdmin" style="color: red; font-weight: 500"></p>
-
-  ${tablaComputo}
-  <hr/>
-  ${tablaMemoria}
-  <hr/>
-  ${tablaAlmacenamiento}
   `;
 
-  imprimirEnHtml("divAdminStockInstancias", htmlFinal);
+  for (let i = 0; i < sistema.categorias.length; i++) {
+    let tabla = generarTablaParaCategoriaInstanciaAdmin(sistema.categorias[i]);
+    html += tabla;
+  }
 
-  for (let i = 0; i < arrTipoInstancias.length; i++) {
-    let tipo = arrTipoInstancias[i];
+  imprimirEnHtml("divAdminStockInstancias", html);
+
+  for (let i = 0; i < sistema.arrayTiposInstancia.length; i++) {
+    let tipo = sistema.arrayTiposInstancia[i].tipo;
 
     document
       .querySelector(`#btnStockGuardar${tipo}`)
@@ -414,7 +401,7 @@ function generarTablaParaCategoriaInstanciaAdmin(categoria) {
 
   // buscar todos los tipos posibles para esta categoria
   // (ej: "c7.small", "c7.medium", etc.)
-  let tipos = tiposDeCategoria(categoria);
+  let tipos = sistema.buscarTiposDeCategoria(categoria);
 
   let tabla = `
                 <h3>${categoria}</h3>
@@ -528,7 +515,7 @@ function guardarCambioStockTipoAdmin() {
 /**
  * Callback para el evento "change" del select de la pantalla `Alquilar`.
  * Regenera la tabla de opciones de alquiler según la categoría seleccionada.
- * @see tiposDeCategoria
+ * @see Sistema.buscarTiposDeCategoria
  */
 function cambiarFiltroAlquilerUsuario() {
   let filtro = this.value;
@@ -545,7 +532,7 @@ function verOpcionesAlquilerUsuario() {
   ocultarElemento("divUsuarioMisInstancias");
   ocultarElemento("divUsuarioMisCostos");
 
-  let tiposAMostrar = tiposDeCategoria(filtroInstanciasAlquilar);
+  let tiposAMostrar = sistema.buscarTiposDeCategoria(filtroInstanciasAlquilar);
 
   let tabla = `
                 <p id="pMensajeAlquiler"></p>
@@ -590,11 +577,13 @@ function verOpcionesAlquilerUsuario() {
       >
     </td>`;
 
+    let tipoI = sistema.buscarTipo(tipo);
+
     tabla += `
                 <tr>
                     <td>${formatearTipoUI(tipo)}</td>
-                    <td>US$ ${tipoACostoAlquiler(tipo)}</td>
-                    <td>US$ ${tipoACostoEncendido(tipo)}</td>
+                    <td>US$ ${tipoI.costoAlquiler}</td>
+                    <td>US$ ${tipoI.costoEncendido}</td>
                     <td>${textoDisponible}</td>
                     ${botonAccion}
                 </tr>    
@@ -847,8 +836,8 @@ function verMisCostos() {
     usuarioLogeado.nombreUsuario
   );
 
-  for (let i = 0; i < arrTipoInstancias.length; i++) {
-    let tipo = arrTipoInstancias[i];
+  for (let i = 0; i < sistema.arrayTiposInstancia.length; i++) {
+    let tipo = sistema.arrayTiposInstancia[i].tipo;
 
     let instancias = sistema.buscarInstanciasPorTipo(tipo, todasMisInstancias);
 
@@ -871,7 +860,8 @@ function crearFilaCostosUsuario(arrInstancias) {
   }
 
   let tipo = arrInstancias[0].tipo;
-  let costoEncendido = tipoACostoEncendido(tipo);
+  let tipoI = sistema.buscarTipo(tipo);
+  let costoEncendido = tipoI.costoEncendido;
   let costoTotal = 0;
   let totalEncendidos = 0;
 
@@ -882,9 +872,7 @@ function crearFilaCostosUsuario(arrInstancias) {
       usuarioLogeado.nombreUsuario
     );
 
-    costoTotal +=
-      tipoACostoAlquiler(tipo) +
-      (alquiler.contadorEncendido - 1) * tipoACostoEncendido(tipo);
+    costoTotal += tipoI.calcularCostos(alquiler.contadorEncendido);
     totalEncendidos += alquiler.contadorEncendido;
   }
 
@@ -921,8 +909,8 @@ function verReportesAdmin() {
   let totalCantidadAlquileres = 0;
   let totalIngresos = 0;
 
-  for (let i = 0; i < arrTipoInstancias.length; i++) {
-    let tipo = arrTipoInstancias[i];
+  for (let i = 0; i < sistema.arrayTiposInstancia.length; i++) {
+    let tipo = sistema.arrayTiposInstancia[i].tipo;
 
     let cantidadPorTipo = sistema.cantidadAlquileresPorTipo(tipo);
     let ingresosPorTipo = sistema.ingresosPorTipoDeInstancia(tipo);

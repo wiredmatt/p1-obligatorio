@@ -72,6 +72,37 @@ class UsuarioComun {
   }
 }
 
+class TipoInstancia {
+  constructor(pTipo, pCostoAlquiler, pCostoEncendido, pCategoria) {
+    /**
+     * @type string
+     */
+    this.tipo = pTipo;
+    /**
+     * @type number
+     */
+    this.costoAlquiler = pCostoAlquiler;
+    /**
+     * @type number
+     */
+    this.costoEncendido = pCostoEncendido;
+
+    /**
+     * @type string
+     */
+    this.categoria = pCategoria;
+  }
+
+  /**
+   * costoAlquiler + (cantidadEncendidos -1) * costoEncendido
+   * @param {number} cantidadEncendidos
+   * @returns {number}
+   */
+  calcularCostos(cantidadEncendidos) {
+    return this.costoAlquiler + (cantidadEncendidos - 1) * this.costoEncendido;
+  }
+}
+
 class MaquinaVirtual {
   static contadorID = 1;
 
