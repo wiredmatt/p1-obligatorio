@@ -108,8 +108,17 @@ function formatearTipoUI(tipo) {
 function esNumeroEnteroValido(valor) {
   return (
     !isNaN(valor) &&
-    String(valor).indexOf(".") === -1 &&
-    Number(valor) >= 0 &&
-    valor !== " "
+    // valor !== " " &&
+    // valor !== "." && 
+    // valor !=="," &&
+    // valor !=="-" &&
+    // valor !=="+" &&
+    // valor !=="" &&
+    String(valor).indexOf(".") === -1 && // no acepta numeros decimales
+    String(valor).length > 0 
   );
+}
+
+function esUnNumeroRazonable(valor){
+  return valor <=1000000
 }

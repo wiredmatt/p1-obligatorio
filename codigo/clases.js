@@ -74,6 +74,7 @@ class TipoInstancia {
    */
   constructor(pTipo, pCostoAlquiler, pCostoEncendido, pCategoria) {
     /**
+     * el nombre del tipo @example c7small
      * @type {string}
      */
     this.tipo = pTipo;
@@ -110,6 +111,7 @@ class MaquinaVirtual {
    */
   constructor(pTipo) {
     /**
+     * objeto TipoInstancia - Preset de Informacion sobre un tipo X
      * @type {TipoInstancia}
      */
     this.tipo = pTipo;
@@ -129,6 +131,9 @@ class MaquinaVirtual {
     this.habilitada = true;
 
     MaquinaVirtual.contadorID++;
+
+    this.tipo.categoria
+
   }
 
   /**

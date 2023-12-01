@@ -225,7 +225,7 @@ function validarDatosRegistroUsuario(
 
   if (!sistema.validarNombreUsuario(pNomUsu)) {
     arrayErrores.push(
-      "El nombre de usuario debe tener un mínimo de 5 caracteres, contando con al menos una mayúscula, una minúscula y un número. Se permiten puntos y guines bajos."
+      "Nombre de usuario inválido. Solo se admiten números, letras, puntos y guiones bajos"
     );
   }
   if (!hayCaracteres(pContrasena) || !sistema.validarContrasena(pContrasena)) {
@@ -488,7 +488,7 @@ function guardarCambioStockTipoAdmin() {
   let valorNuevo = document.querySelector(`#numStockModificar${tipo}`).value;
   let ok = false;
 
-  if (esNumeroEnteroValido(valorNuevo)) {
+  if (esNumeroEnteroValido(valorNuevo)&&esUnNumeroRazonable(valorNuevo)) {
     valorNuevoNumerico = Number(valorNuevo);
 
     if (valorNuevoNumerico > valorActual) {
